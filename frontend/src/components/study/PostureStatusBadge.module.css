@@ -1,0 +1,52 @@
+/* 알약과 그 아래 사정 문구를 한 덩어리로 묶는다. 부모(action-area)가 세로 정렬이라
+   묶지 않으면 문구가 알약과 같은 간격으로 떨어져 서로 남남처럼 보인다. */
+.status-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-2);
+}
+
+.status-badge {
+  margin: 0;
+  padding: var(--gak-space-2) var(--gak-space-4);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  border: 1px solid var(--gak-status-warning);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-surface);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-status-warning);
+  font-variant-numeric: tabular-nums;
+  transition:
+    color var(--gak-transition-base),
+    border-color var(--gak-transition-base);
+}
+
+.status-badge[data-status='verified'] {
+  border-color: var(--gak-status-ok);
+  color: var(--gak-status-ok);
+}
+
+/*
+  고쳐야 통과하는 상태. 기다리면 되는 상태(주황)와 색으로 구분한다 —
+  문구만 바뀌면 화면을 계속 보고 있지 않은 사용자는 달라진 것을 못 알아챈다.
+*/
+.status-badge[data-blocked='true'] {
+  border-color: var(--gak-status-danger);
+  color: var(--gak-status-danger);
+}
+
+/* 왜 지금 고쳐야 하는지. 위 알약이 '무엇을' 이고 이 줄이 '왜' 라서, 읽는 순서대로
+   눈에 덜 띄게 둔다 — 같은 크기·같은 색이면 어느 쪽을 먼저 읽어야 할지 흐려진다. */
+.status-context {
+  margin: 0;
+  max-width: 42ch;
+  font-size: var(--gak-fs-xs);
+  line-height: 1.5;
+  color: var(--gak-text-secondary);
+  text-align: center;
+  word-break: keep-all;
+}

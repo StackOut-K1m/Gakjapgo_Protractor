@@ -1,0 +1,3 @@
+package com.protractor.backend.domain.friendship.dto;
+import com.protractor.backend.domain.member.entity.Member; import java.time.LocalDateTime;
+public record FriendProfileResponse(Long memberId,String nickname,String profileImageUrl,LocalDateTime joinedAt,StudySummary studySummary){public record StudySummary(int totalFocusedSeconds,int recent7DaysFocusedSeconds,int streakDays){} public static FriendProfileResponse of(Member m,int total,int recent,int streak){return new FriendProfileResponse(m.getId(),m.getNickname(),m.getProfileImageUrl(),m.getCreatedAt(),new StudySummary(total,recent,streak));}}

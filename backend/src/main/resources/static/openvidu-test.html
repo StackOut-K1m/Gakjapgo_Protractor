@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>각잡고 화상방 테스트</title>
+  <!-- OpenVidu 브라우저 SDK (실행 중인 OpenVidu 서버 2.32.2와 버전 맞춤) -->
+  <script src="https://cdn.jsdelivr.net/npm/openvidu-browser@2.32.2/static/js/openvidu-browser-2.32.2.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; background:#f6f7f9; color:#222; }
+    h1 { font-size: 20px; }
+    .row { margin: 8px 0; }
+    input { padding:6px 8px; width:120px; }
+    button { padding:6px 14px; cursor:pointer; }
+    #videos { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
+    #videos > div { border:1px solid #ccc; border-radius:8px; overflow:hidden; background:#000; }
+    video { width:320px; height:240px; object-fit:cover; display:block; }
+    .cap { color:#fff; font-size:12px; padding:4px 8px; background:#333; }
+    #log { margin-top:16px; font-size:12px; white-space:pre-wrap; background:#fff; border:1px solid #ddd; padding:10px; border-radius:8px; max-height:180px; overflow:auto; }
+    .warn { color:#b45309; font-size:13px; }
+  </style>
+</head>
+<body>
+  <h1>각잡고 화상방 테스트</h1>
+  <p class="warn">입장 시 브라우저가 <b>카메라/마이크 권한</b>을 물으면 허용하세요. OpenVidu dev 모드는 http/ws라 인증서 허용은 불필요합니다.</p>
+
+  <div class="row">
+    roomId: <input id="roomId" value="1" />
+    accessToken: <input id="accessToken" style="width:520px" placeholder="Swagger/Auth 로그인으로 받은 accessToken" />
+    <button id="joinBtn">입장</button>
+    <button id="leaveBtn" disabled>나가기</button>
+  </div>
+
+  <div id="videos"></div>
+  <div id="log"></div>
+
+  <script>
+    const log = (m) => {
+      document.getElementById('log').textContent += m + '\n';
+      console.log(m);
+    };
+
+    let OV, session, publisher;
+
+    async function join() {
+      const roomId = document.getElementById('roomId').value.trim();
+      const accessToken = document.getElementById('accessToken').value.trim();
+
+      log(`입장 요청: POST /api/v1/study-rooms/${roomId}/join`);
+      const res = await fetch(`/api/v1/study-rooms/${roomId}/join`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({ cameraChecked: true, postureChecked: true })
+      });
+      if (!res.ok) {
+        log(`입장 실패 (HTTP ${res.status}): ${await res.text()}`);
+        return;
+      }
+      const data = await res.json();
+      log(`토큰 수신: session=${data.openviduSessionId}, token=${data.mediaToken.slice(0, 40)}...`);
+
+      OV = new OpenVidu();
+      session = OV.initSession();
+
+      session.on('streamCreated', (event) => {
+        const container = addVideoBox('상대방');
+        session.subscribe(event.stream, container);
+        log('상대방 스트림 수신');
+      });
+      session.on('streamDestroyed', () => log('상대방 나감'));
+      session.on('exception', (e) => log('예외: ' + e.name));
+
+      await session.connect(data.mediaToken, { clientData: String(data.memberId) });
+      log('OpenVidu 세션 연결됨');
+
+      const myBox = addVideoBox('나(' + data.memberId + ')');
+      publisher = await OV.initPublisherAsync(myBox, {
+        audioSource: undefined,
+        videoSource: undefined,
+        publishAudio: true,
+        publishVideo: true,
+        resolution: '640x480',
+        frameRate: 30,
+        mirror: true
+      });
+      session.publish(publisher);
+      log('내 캠 송출 시작');
+
+      document.getElementById('joinBtn').disabled = true;
+      document.getElementById('leaveBtn').disabled = false;
+    }
+
+    function leave() {
+      if (session) session.disconnect();
+      document.getElementById('videos').innerHTML = '';
+      document.getElementById('joinBtn').disabled = false;
+      document.getElementById('leaveBtn').disabled = true;
+      log('세션 종료');
+    }
+
+    function addVideoBox(caption) {
+      const wrap = document.createElement('div');
+      const cap = document.createElement('div');
+      cap.className = 'cap';
+      cap.textContent = caption;
+      const target = document.createElement('div');
+      wrap.appendChild(cap);
+      wrap.appendChild(target);
+      document.getElementById('videos').appendChild(wrap);
+      return target;
+    }
+
+    document.getElementById('joinBtn').onclick = () => join().catch(e => log('실패: ' + e.message));
+    document.getElementById('leaveBtn').onclick = leave;
+  </script>
+</body>
+</html>

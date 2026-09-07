@@ -1,0 +1,46 @@
+.page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 80px 24px;
+  background: var(--gak-bg-subtle, #f7f9fa);
+  min-height: 100%;
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: var(--gak-surface, #fff);
+  border: 1px solid var(--gak-border, #d0d5dd);
+  border-radius: 20px;
+  box-shadow: 0 2px 20px rgb(15 23 42 / 6%);
+}
+
+.message {
+  margin: 0;
+  font-size: var(--gak-fs-md, 15px);
+  color: var(--gak-text-secondary, #475467);
+}
+
+.error {
+  margin: 0;
+  font-size: var(--gak-fs-md, 15px);
+  color: var(--gak-status-danger);
+  text-align: center;
+}
+
+.link {
+  font-size: var(--gak-fs-base, 14px);
+  font-weight: var(--gak-fw-bold, 700);
+  color: var(--gak-primary, #2d8c3c);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

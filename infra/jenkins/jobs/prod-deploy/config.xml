@@ -1,0 +1,92 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.9.16">
+      <gitLabConnection></gitLabConnection>
+      <jobCredentialId></jobCredentialId>
+      <useAlternativeCredential>false</useAlternativeCredential>
+    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>VERSION</name>
+          <description>예: v1.0.0
+
+x.0.0 - 대규모 업데이트
+0.x.0 - 소규모 패치
+0.0.x - 핫픽스</description>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@5.10.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://lab.ssafy.com/s15-webmobile2-sub1/S15P11C106.git</url>
+        <credentialsId>gitlab-https</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>refs/tags/${VERSION}</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="empty-list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>set -e
+BK=&quot;protractor-backend:${VERSION}&quot;
+FE=&quot;protractor-frontend:${VERSION}&quot;
+
+# 프론트 RUM (브라우저 노출용 공개 토큰)
+RUM_APP_ID=3ef01d23-62f5-4dfc-90a5-a5372c318b93
+RUM_CLIENT_TOKEN=pub5ab2bc6be03310368795b538a6dd1bc2
+RUM_SITE=ap1.datadoghq.com
+
+# 빌드 (backend: Dockerfile에 java agent 포함 / frontend: RUM 주입)
+docker image inspect &quot;$BK&quot; &gt;/dev/null 2&gt;&amp;1 || docker build -t &quot;$BK&quot; ./backend
+docker image inspect &quot;$FE&quot; &gt;/dev/null 2&gt;&amp;1 || docker build \
+  --build-arg VITE_DD_RUM_APP_ID=&quot;$RUM_APP_ID&quot; \
+  --build-arg VITE_DD_RUM_CLIENT_TOKEN=&quot;$RUM_CLIENT_TOKEN&quot; \
+  --build-arg VITE_DD_SITE=&quot;$RUM_SITE&quot; \
+  -t &quot;$FE&quot; ./frontend
+
+# .env의 PROD_*_IMAGE만 갱신 (DD_API_KEY 등 나머지 보존!)
+touch /app-deploy/.env
+sed -i &apos;/^PROD_BACKEND_IMAGE=/d; /^PROD_FRONTEND_IMAGE=/d&apos; /app-deploy/.env
+cat &gt;&gt; /app-deploy/.env &lt;&lt;EOF2
+PROD_BACKEND_IMAGE=${BK}
+PROD_FRONTEND_IMAGE=${FE}
+EOF2
+
+# 오버레이 포함해 운영 컨테이너 교체 (backend-prod에 DD env 병합됨)
+docker compose -p app \
+  -f /app-deploy/docker-compose.yml -f /app-deploy/docker-compose.datadog.yml \
+  --project-directory /app-deploy \
+  up -d --no-deps --force-recreate backend-prod frontend-prod
+
+# 버전 이미지 5개 초과분 정리
+for repo in protractor-backend protractor-frontend; do
+  docker images &quot;$repo&quot; --format &apos;{{.Tag}}&apos; | grep &apos;^v&apos; | sort -Vr | tail -n +6 \
+    | while read t; do docker rmi &quot;$repo:$t&quot; 2&gt;/dev/null || true; done
+done</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

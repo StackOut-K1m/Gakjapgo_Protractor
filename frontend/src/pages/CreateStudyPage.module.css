@@ -1,0 +1,414 @@
+.create-study-page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 경고 모달 ── */
+.warning-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--gak-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gak-overlay);
+}
+
+.warning-modal {
+  width: 320px;
+  padding: var(--gak-space-5) 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-4);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  box-shadow: var(--gak-shadow-md);
+}
+
+.warning-message {
+  margin: 0;
+  text-align: center;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  word-break: keep-all;
+}
+
+.warning-highlight {
+  color: var(--gak-primary);
+}
+
+.warning-confirm-btn {
+  width: 100%;
+  padding: var(--gak-space-3);
+  border: none;
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-primary);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-inverse);
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast);
+}
+
+.warning-confirm-btn:hover {
+  background: var(--gak-primary);
+}
+
+/* ── 본문 ── */
+.create-study-main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--gak-content-width, 1280px);
+  margin: 0 auto;
+  padding-bottom: var(--gak-space-6);
+}
+
+/* ── 폼 레이아웃 (흰 카드) ── */
+.form-body {
+  /* 오른쪽 열 맨 아래 버튼 행의 높이. 왼쪽 열에서 같은 크기를 비우는 데도 쓴다. */
+  --actions-row-height: 48px;
+
+  display: flex;
+  /* 두 열을 같은 높이로 늘려서, 왼쪽 '주요 규칙'과 오른쪽 '소개글'이 같은 선에서 끝나게 한다. */
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: var(--gak-space-6);
+  padding: var(--gak-space-6);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  box-shadow: var(--gak-shadow-sm);
+}
+
+.left-form-column {
+  flex: 1 1 420px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-5);
+  /* 오른쪽 열의 버튼 행(+그 위 간격)만큼 비워, 주요 규칙 입력칸이
+     오른쪽 소개글 편집기와 같은 선에서 끝나게 한다. */
+  padding-bottom: calc(var(--actions-row-height) + var(--gak-space-5));
+}
+
+.right-form-column {
+  flex: 1 1 340px;
+  min-width: 300px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-5);
+}
+
+.form-row-3col,
+.form-row-2col,
+.form-date-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--gak-space-4);
+}
+
+.form-row-3col > *,
+.form-row-2col > *,
+.form-date-row > * {
+  min-width: 180px;
+}
+
+.form-date-row {
+  position: relative;
+}
+
+/* ── 모집 인원 ── */
+.member-count-field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+}
+
+.member-label-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.member-label {
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.required-mark {
+  font-size: var(--gak-fs-base);
+  color: var(--gak-status-danger);
+}
+
+.member-input {
+  width: 100%;
+  padding: var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-text);
+  transition: border-color var(--gak-transition-fast);
+}
+
+.member-input::placeholder {
+  color: var(--gak-text-muted);
+}
+
+.member-input:focus {
+  outline: none;
+  border-color: var(--gak-primary);
+}
+
+/* ── 스터디 규칙 ── */
+.rules-field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+}
+
+/* 왼쪽 열의 마지막 항목(주요 규칙)이 남는 세로 공간을 모두 차지하게 한다.
+   오른쪽 소개글 편집기도 같은 방식으로 늘어나므로 둘의 아래선이 맞는다. */
+.left-form-column .rules-field:last-child {
+  flex: 1;
+  min-height: 0;
+}
+
+.left-form-column .rules-field:last-child .rules-textarea {
+  flex: 1;
+  min-height: 120px;
+}
+
+.rules-label {
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.rules-textarea {
+  width: 100%;
+  padding: var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+  line-height: 1.7;
+  resize: none;
+  word-break: keep-all;
+  transition: border-color var(--gak-transition-fast);
+}
+
+.rules-textarea::placeholder {
+  color: var(--gak-text-muted);
+}
+
+.rules-textarea:focus {
+  outline: none;
+  border-color: var(--gak-primary);
+}
+
+/* ── 비공개 방 ── */
+.lock-field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-3);
+}
+
+/* 토글을 켰을 때만 나타난다. 토글에 딸린 항목이라는 게 보이도록 들여쓰고 선을 그어 묶는다. */
+.password-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+  padding-left: var(--gak-space-4);
+  border-left: 2px solid var(--gak-border);
+}
+
+.password-label {
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  white-space: nowrap;
+}
+
+.password-input {
+  flex: 1;
+  min-width: 0;
+  max-width: 200px;
+  padding: var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+  /* 자릿수를 세기 쉽게 폭이 일정한 숫자를 쓴다 */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.15em;
+  transition: border-color var(--gak-transition-fast);
+}
+
+.password-input::placeholder {
+  color: var(--gak-text-muted);
+  letter-spacing: normal;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: var(--gak-primary);
+}
+
+/* ── 썸네일 ── */
+.thumbnail-grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--gak-space-2);
+}
+
+.thumbnail-option {
+  width: 100%;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--gak-radius-md);
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-1);
+  transition: border-color var(--gak-transition-fast);
+}
+
+.thumbnail-option img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--gak-radius-sm);
+}
+
+.thumbnail-option span {
+  padding-bottom: var(--gak-space-1);
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-secondary);
+}
+
+.thumbnail-option:hover {
+  border-color: var(--gak-border);
+}
+
+.thumbnail-option[data-selected='true'] {
+  border-color: var(--gak-primary);
+}
+
+.thumbnail-option[data-selected='true'] span {
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-primary);
+}
+
+.thumbnail-hint {
+  margin: 0;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+
+.thumbnail-preview {
+  margin-top: var(--gak-space-1);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface-alt);
+  overflow: hidden;
+}
+
+/* 방 목록 카드와 같은 비율로 보여 실제 노출 모습을 가늠할 수 있게 한다. */
+.thumbnail-preview img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+/* ── 액션 버튼 ── */
+/* 버튼 행. 높이를 고정해 두고 왼쪽 열에서 같은 크기를 비워, 두 열의 입력 영역이
+   같은 선에서 끝나게 한다(왼쪽엔 버튼이 없어 그만큼 더 내려가기 때문). */
+.form-actions {
+  min-height: var(--actions-row-height);
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+}
+
+/* 두 열이 세로로 쌓이면 나란히 놓이지 않으므로 아래선을 맞출 이유가 없다.
+   그대로 두면 규칙 입력칸 아래에 빈 공간만 생긴다. */
+@media (max-width: 820px) {
+  .left-form-column {
+    padding-bottom: 0;
+  }
+}
+
+.cancel-btn,
+.submit-btn {
+  flex: 1;
+  padding: var(--gak-space-4);
+  border-radius: var(--gak-radius-md);
+  font-family: inherit;
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast);
+}
+
+.cancel-btn {
+  border: 1px solid var(--gak-border);
+  background: var(--gak-surface);
+  color: var(--gak-text-secondary);
+}
+
+.cancel-btn:hover {
+  background: var(--gak-bg);
+}
+
+.submit-btn {
+  border: 1px solid var(--gak-primary);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.submit-btn:hover {
+  border-color: var(--gak-primary);
+  background: var(--gak-primary);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.popup-blocked {
+  margin: 0;
+  padding: var(--gak-space-3) var(--gak-space-4);
+  border: 1px solid var(--gak-status-danger);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-status-danger);
+  word-break: keep-all;
+}

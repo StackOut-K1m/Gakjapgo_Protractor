@@ -1,0 +1,212 @@
+/* 그리드와 동일한 크기·여백을 쓴다 (VideoGrid 1인 배치와 같은 비율) */
+.coaching-stage {
+  width: 100%;
+  height: 100%;
+  padding: var(--gak-space-4);
+}
+
+.stage-tile {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 3px solid transparent;
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface-dark);
+  overflow: hidden;
+  transition: border-color var(--gak-transition-base);
+}
+
+.stage-tile[data-active='true'] {
+  border-color: var(--gak-status-danger);
+}
+
+.stage-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+/* ── 경고 토스트 심각도별 색 ── */
+.stage-toast[data-severity='mild'] {
+  background: rgba(161, 98, 7, 0.92);
+}
+
+.stage-toast[data-severity='moderate'] {
+  background: rgba(154, 52, 18, 0.92);
+}
+
+.stage-toast[data-severity='severe'] {
+  background: rgba(153, 27, 27, 0.94);
+}
+
+/* ── 부위 범례 ── */
+.severity-legend {
+  position: absolute;
+  right: var(--gak-space-3);
+  top: var(--gak-space-3);
+  z-index: var(--gak-z-badge);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--gak-space-2);
+  list-style: none;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: var(--gak-space-1) var(--gak-space-3);
+  border-radius: var(--gak-radius-full);
+  background: rgba(16, 24, 40, 0.75);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-inverse);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--gak-radius-full);
+}
+
+.legend-item[data-severity='mild'] .legend-dot {
+  background: var(--gak-severity-mild, #ffca3a);
+}
+
+.legend-item[data-severity='moderate'] .legend-dot {
+  background: var(--gak-severity-moderate, #ee8332);
+}
+
+.legend-item[data-severity='severe'] .legend-dot {
+  background: var(--gak-severity-severe, #f04652);
+}
+
+/* ── 카메라 꺼짐 안내 ── */
+.camera-off-cover {
+  position: absolute;
+  inset: 0;
+  z-index: var(--gak-z-badge);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gak-space-5);
+  background: rgba(11, 18, 32, 0.96);
+  pointer-events: none;
+}
+
+.camera-off-icon {
+  font-size: 56px;
+  line-height: 1;
+  filter: grayscale(0.4);
+}
+
+/* 아래 .stage-caption 과 같은 알약 모양을 쓴다 — 영상 위에 얹히는 안내 문구라는 점이
+   같아서, 자리만 다를 뿐 생김새가 갈릴 이유가 없다.
+   위치 속성(absolute·bottom)은 가져오지 않는다. 이건 아이콘 바로 아래에 놓여야 해서
+   덮개(.camera-off-cover)의 세로 정렬을 그대로 따라야 한다.
+   둘 중 하나의 색·크기를 바꾸면 나머지도 같이 손볼 것. */
+.camera-off-hint {
+  margin: 0;
+  padding: var(--gak-space-2) var(--gak-space-4);
+  max-width: calc(100% - var(--gak-space-6));
+  border-radius: var(--gak-radius-full);
+  background: rgba(16, 24, 40, 0.7);
+  backdrop-filter: blur(4px);
+  font-size: var(--gak-fs-sm);
+  color: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  word-break: keep-all;
+}
+
+/* ── 경고 토스트 ── */
+.stage-toast {
+  position: absolute;
+  top: var(--gak-space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--gak-z-badge);
+  margin: 0;
+  padding: var(--gak-space-3) var(--gak-space-4);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  max-width: calc(100% - var(--gak-space-6));
+  border-radius: var(--gak-radius-md);
+  background: rgba(16, 24, 40, 0.92);
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-inverse);
+  text-align: center;
+  word-break: keep-all;
+}
+
+.stage-toast[data-mode='camera-off'] {
+  border: 1px solid var(--gak-status-danger);
+  background: var(--gak-status-danger);
+}
+
+/* ── 안내 배너 (화면 안쪽, 반투명) ── */
+.stage-caption {
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--gak-z-badge);
+  margin: 0;
+  padding: var(--gak-space-2) var(--gak-space-4);
+  max-width: calc(100% - var(--gak-space-6));
+  border-radius: var(--gak-radius-full);
+  background: rgba(16, 24, 40, 0.7);
+  backdrop-filter: blur(4px);
+  font-size: var(--gak-fs-sm);
+  color: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  word-break: keep-all;
+  pointer-events: none;
+}
+
+/* ── 이름 / 카운터 ── */
+.stage-name {
+  position: absolute;
+  left: var(--gak-space-3);
+  bottom: var(--gak-space-3);
+  z-index: var(--gak-z-badge);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: var(--gak-space-1) var(--gak-space-3);
+  border-radius: var(--gak-radius-sm);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.stage-name-sub {
+  font-weight: var(--gak-fw-normal);
+  color: var(--gak-text-secondary);
+}
+
+.stage-counter {
+  position: absolute;
+  right: var(--gak-space-3);
+  bottom: var(--gak-space-3);
+  z-index: var(--gak-z-badge);
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--gak-space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--gak-radius-full);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: var(--gak-fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-text);
+}

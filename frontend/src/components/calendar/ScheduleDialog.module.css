@@ -1,0 +1,155 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--gak-z-modal, 1000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gak-space-4);
+  background: rgb(0 0 0 / 45%);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: var(--gak-space-6);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 18%);
+}
+
+.title {
+  margin: 0 0 var(--gak-space-5);
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+}
+
+.label {
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-bg, #fff);
+  color: var(--gak-text);
+  font-size: var(--gak-fs-base);
+  font-family: inherit;
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: 2px solid var(--gak-primary);
+  outline-offset: -1px;
+}
+
+/* ── 색상 선택 ── */
+.colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gak-space-2);
+}
+
+.color-chip {
+  width: 28px;
+  height: 28px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* 선택된 칸은 테두리를 띄워서 표시한다. 색 자체를 바꾸면 무슨 색인지 알 수 없다 */
+.color-chip[data-selected='true'] {
+  border-color: var(--gak-text);
+  box-shadow: 0 0 0 2px var(--gak-surface) inset;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text);
+  cursor: pointer;
+}
+
+.error {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-status-danger);
+}
+
+/* ── 버튼 ── */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-3);
+  margin-top: var(--gak-space-2);
+}
+
+/* 삭제만 왼쪽에 떼어 둔다. 저장 옆에 두면 잘못 누르기 쉽다 */
+.actions-right {
+  display: flex;
+  gap: var(--gak-space-2);
+  margin-left: auto;
+}
+
+.save-btn,
+.cancel-btn,
+.delete-btn {
+  padding: var(--gak-space-3) var(--gak-space-5);
+  border-radius: var(--gak-radius-md);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+}
+
+.save-btn {
+  border: none;
+  background: var(--gak-primary);
+  color: #fff;
+}
+
+.cancel-btn {
+  border: 1px solid var(--gak-border);
+  background: var(--gak-surface);
+  color: var(--gak-text);
+}
+
+.delete-btn {
+  border: 1px solid var(--gak-status-danger);
+  background: transparent;
+  color: var(--gak-status-danger);
+}
+
+.save-btn:disabled,
+.cancel-btn:disabled,
+.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

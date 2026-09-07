@@ -1,0 +1,64 @@
+/*
+ * 접힌 독. 우하단에 띄우고, 콘텐츠 레이아웃은 건드리지 않는다.
+ *
+ * 24px 은 본문 컨테이너의 좌우 여백(--gak-content-padding)과 같은 값이다.
+ */
+.toggle {
+  position: fixed;
+  right: var(--gak-content-padding);
+  bottom: var(--gak-content-padding);
+  z-index: var(--gak-z-dock);
+
+  width: 52px;
+  height: 52px;
+  /* 브라우저 기본 버튼 여백(1px 6px)을 지운다 */
+  padding: 0;
+  display: grid;
+  place-items: center;
+
+  border: none;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  box-shadow: var(--gak-shadow-md);
+  cursor: pointer;
+  transition:
+    background var(--gak-transition-fast),
+    transform var(--gak-transition-fast);
+}
+
+.toggle:hover {
+  background: var(--gak-primary-hover);
+  transform: translateY(-1px);
+}
+
+.toggle:active {
+  transform: translateY(0);
+}
+
+/*
+ * 받은 신청 건수.
+ *
+ * 초록 버튼 위에서 눈에 띄어야 해서 경고색을 쓰고, 버튼 밖으로 살짝 걸치게 둔다.
+ * 흰 테두리는 버튼과 배지 사이를 끊어 두 색이 맞닿아 탁해 보이는 것을 막는다.
+ */
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+
+  box-sizing: border-box;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+
+  border: 2px solid var(--gak-surface);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-status-danger);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  line-height: 1;
+}

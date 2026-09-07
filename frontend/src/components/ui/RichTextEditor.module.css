@@ -1,0 +1,102 @@
+/* 세로 flex 컨테이너 안에 놓이면 남는 공간을 채운다.
+   방 개설 화면에서 왼쪽 '주요 규칙'과 아래선을 맞추기 위한 것이다. */
+.editor-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.editor-label {
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.rich-editor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  overflow: hidden;
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+  padding: var(--gak-space-2) var(--gak-space-3);
+  border-bottom: 1px solid var(--gak-border);
+  background: var(--gak-bg);
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gak-space-1) var(--gak-space-2);
+  border: none;
+  border-radius: var(--gak-radius-sm);
+  background: none;
+  font-family: inherit;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--gak-transition-fast),
+    background-color var(--gak-transition-fast);
+}
+
+.toolbar-btn:hover {
+  color: var(--gak-text);
+}
+
+.toolbar-btn:active {
+  background: var(--gak-border);
+  color: var(--gak-text);
+}
+
+.toolbar-btn[data-variant='bold'] {
+  font-weight: var(--gak-fw-bold);
+}
+
+.toolbar-btn[data-variant='underline'] {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--gak-border);
+}
+
+.editor-body {
+  /* 남는 공간을 채우되, 옆 열이 짧아도 최소 높이는 확보한다. */
+  flex: 1;
+  min-height: 220px;
+  overflow-y: auto;
+  width: 100%;
+  padding: var(--gak-space-4);
+  background: var(--gak-surface);
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+  line-height: 1.7;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.editor-body:focus {
+  outline: none;
+}
+
+.editor-body:empty::before {
+  content: attr(data-placeholder);
+  color: var(--gak-text-muted);
+  pointer-events: none;
+  white-space: pre-wrap;
+}

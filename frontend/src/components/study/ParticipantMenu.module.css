@@ -1,0 +1,39 @@
+/* 사이드바 목록이 스크롤되고 폭도 좁아서, 메뉴는 목록 흐름 밖(fixed)에 띄운다.
+   좌표는 컴포넌트가 기준 아이템을 재서 넣는다. */
+.menu {
+  position: fixed;
+  z-index: var(--gak-z-modal);
+  min-width: 148px;
+  padding: var(--gak-space-1);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.16);
+}
+
+.menu-item {
+  padding: var(--gak-space-3);
+  border: none;
+  border-radius: var(--gak-radius-sm);
+  background: none;
+  font-family: inherit;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--gak-transition-fast),
+    color var(--gak-transition-fast);
+}
+
+.menu-item:hover,
+.menu-item:focus-visible,
+.menu-item:active {
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+  font-weight: var(--gak-fw-bold);
+  outline: none;
+}

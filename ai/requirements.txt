@@ -1,0 +1,11 @@
+# miniforge(conda) 사용 권장 — 컴파일러 없이 바이너리 설치:
+#   conda install -c conda-forge --file requirements.txt
+# pip를 쓸 경우 아래 버전으로 설치됩니다.
+mediapipe==0.10.14
+opencv-python==4.10.0.84
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.1
+matplotlib
+jupyter
+ipykernel

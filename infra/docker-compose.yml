@@ -1,0 +1,166 @@
+# 각잡고(Protractor) 인프라 + 앱 통합 compose (재현용, 시크릿 정제본)
+# 사전 1회:  docker network create protractor-net
+#
+# ⚠️ 시크릿 값은 ${VAR} 로 외부화됨 → .env 에 정의(.env.example 참고).
+#    - MYSQL_ROOT_PASSWORD, MYSQL_PASSWORD, OPENVIDU_SECRET
+#    - PROD_BACKEND_IMAGE / PROD_FRONTEND_IMAGE (배포 시 Jenkins가 세팅)
+#    - DD_API_KEY / DD_SITE (docker-compose.datadog.yml 사용 시)
+#    나머지 앱 시크릿은 backend-secrets.env / backend-secrets-prod.env (env_file, *.example 참고)
+# ⚠️ 도메인/공인IP(i15c106.p.ssafy.io, gakjapgo.site, KMS_EXTERNAL_ADDRESS)는 배포 환경에 맞게 교체.
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: protractor-nginx
+    restart: always
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks: [protractor-net]
+
+  jenkins:
+    build: ./jenkins                 # (jenkins/ 는 이 정제본에서 제외 — 추후 별도 정리)
+    container_name: protractor-jenkins
+    restart: always
+    environment:
+      - JAVA_OPTS=-Duser.timezone=Asia/Seoul
+      - TZ=Asia/Seoul
+    ports:
+      - "9090:8080"
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/ubuntu/app:/app-deploy
+    group_add:
+      - "988"                        # 호스트 docker 그룹 gid (stat /var/run/docker.sock 로 확인)
+    networks:
+      - protractor-net
+
+  mysql:
+    image: mysql:8.0
+    container_name: protractor-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: protractor
+      MYSQL_USER: protractor
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Seoul
+    ports: ["127.0.0.1:3306:3306"]   # 외부 차단, SSH 터널로만 접근
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks: [protractor-net]
+
+  redis:
+    image: redis:7-alpine
+    container_name: protractor-redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./redis_data:/data
+    networks: [protractor-net]
+
+  openvidu:
+    image: openvidu/openvidu-dev:2.31.0
+    container_name: protractor-openvidu
+    restart: always
+    ports: ["4443:4443", "8000-8199:8000-8199/udp"]
+    environment:
+      - SERVER_PORT=4443
+      - OPENVIDU_SECRET=${OPENVIDU_SECRET}
+      - DOMAIN_OR_PUBLIC_IP=i15c106.p.ssafy.io      # ← 배포 도메인/IP로 교체
+      - HTTPS_PORT=443
+      - FORCE_PLAIN_HTTP=false                       # wss 토큰 네이티브 발급 (nginx TLS 종단)
+      - KMS_EXTERNAL_ADDRESS=3.35.18.185             # ← 호스트 공인 IP로 교체 (ICE 광고)
+    volumes:
+      - ./openvidu/BaseRtpEndpoint.conf.ini:/etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini:ro
+      - ./openvidu/kms.sh:/kms.sh:ro
+    networks: [protractor-net]
+
+  # ===== 테스트(develop) backend =====
+  backend:
+    image: protractor-backend:latest
+    container_name: protractor-backend
+    restart: always
+    environment:
+      - "SPRING_PROFILES_ACTIVE=docker"
+      - "DB_URL=jdbc:mysql://protractor-mysql:3306/protractor?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+      - "DB_USERNAME=protractor"
+      - "DB_PASSWORD=${MYSQL_PASSWORD}"
+      - "OPENVIDU_URL=http://protractor-openvidu:4443"
+      - "OPENVIDU_SECRET=${OPENVIDU_SECRET}"
+      - "CORS_ALLOWED_ORIGINS=https://i15c106.p.ssafy.io"
+      - "OPENVIDU_PUBLIC_WS_URL=wss://i15c106.p.ssafy.io"
+      - "TZ=Asia/Seoul"
+      - "BOARD_UPLOAD_DIR=/data/uploads/posts"
+      - "BOARD_ATTACHMENTS_ENABLED=true"
+      - "PROFILE_IMAGE_DIR=/data/uploads/profile-images"
+    volumes:
+      - /srv/protractor/uploads/posts:/data/uploads/posts
+      - /srv/protractor/uploads/profile-images:/data/uploads/profile-images
+    depends_on:
+      - mysql
+    networks:
+      - protractor-net
+    env_file:
+      - ./backend-secrets.env
+
+  frontend:
+    image: protractor-frontend:latest
+    container_name: protractor-frontend
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - protractor-net
+
+  # ===== 운영(main) backend =====
+  backend-prod:
+    image: ${PROD_BACKEND_IMAGE:-protractor-backend:prod}   # Jenkins가 main 빌드 후 버전 태그로 세팅
+    container_name: protractor-backend-prod
+    restart: always
+    environment:
+      - "SPRING_PROFILES_ACTIVE=docker"
+      - "DB_URL=jdbc:mysql://protractor-mysql:3306/protractor_prod?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+      - "DB_USERNAME=protractor_prod"
+      # DB_PASSWORD 는 backend-secrets-prod.env(env_file)에서 주입
+      - "SPRING_DATA_REDIS_DATABASE=1"                 # 테스트=0 / 운영=1 (논리 격리)
+      - "OPENVIDU_URL=http://protractor-openvidu:4443" # openvidu 공유
+      - "OPENVIDU_SECRET=${OPENVIDU_SECRET}"            # 공유 openvidu와 동일해야 함
+      - "CORS_ALLOWED_ORIGINS=https://gakjapgo.site"
+      - "OPENVIDU_PUBLIC_WS_URL=wss://gakjapgo.site"
+      - "BOARD_UPLOAD_DIR=/data/uploads/posts"
+      - "PROFILE_IMAGE_DIR=/data/uploads/profile-images"
+      - "TZ=Asia/Seoul"
+      - "GOOGLE_REDIRECT_URI=https://gakjapgo.site/api/v1/auth/oauth/google/callback"
+      - "KAKAO_REDIRECT_URI=https://gakjapgo.site/api/v1/auth/oauth/kakao/callback"
+      - "OAUTH_FRONTEND_CALLBACK_URL=https://gakjapgo.site/oauth/callback"
+    volumes:
+      - /srv/protractor/prod/uploads/posts:/data/uploads/posts
+      - /srv/protractor/prod/uploads/profile-images:/data/uploads/profile-images
+    depends_on: [mysql]
+    networks: [protractor-net]
+    env_file:
+      - ./backend-secrets-prod.env
+
+  # ===== 운영(main) frontend =====
+  frontend-prod:
+    image: ${PROD_FRONTEND_IMAGE:-protractor-frontend:prod}
+    container_name: protractor-frontend-prod
+    restart: always
+    depends_on: [backend-prod]
+    networks: [protractor-net]
+
+networks:
+  protractor-net:
+    external: true

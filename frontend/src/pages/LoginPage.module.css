@@ -1,0 +1,234 @@
+.page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 56px 24px 80px;
+  background: var(--gak-bg-subtle, #f7f9fa);
+  min-height: 100%;
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  padding: 40px 40px 32px;
+  background: var(--gak-surface, #fff);
+  border: 1px solid var(--gak-border, #d0d5dd);
+  border-radius: 20px;
+  box-shadow: 0 2px 20px rgb(15 23 42 / 6%);
+  text-align: left;
+}
+
+/* ─── 상단 로고 / 문구 ─── */
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-2, 8px);
+  margin-bottom: 32px;
+}
+
+.logoImg {
+  width: 44px;
+  height: 48px;
+  object-fit: cover;
+}
+
+.wordmark {
+  margin: 0;
+  font-size: var(--gak-fs-title, 28px);
+  font-weight: var(--gak-fw-bold, 700);
+  letter-spacing: -0.02em;
+  color: var(--gak-text, #101828);
+}
+
+.tagline {
+  margin: 0;
+  font-size: var(--gak-fs-base, 14px);
+  color: var(--gak-text-secondary, #475467);
+}
+
+/* ─── 입력 폼 ─── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;  /* ← 이게 label 안까지 영향 주진 않지만 */
+  gap: 10px;
+}
+
+.label {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+
+.required {
+  margin-left: 4px;
+  color: var(--gak-status-danger);
+}
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--gak-border, #d0d5dd);
+  border-radius: var(--gak-radius-md, 8px);
+  font-family: inherit;
+  font-size: var(--gak-fs-md, 15px);
+  color: var(--gak-text, #101828);
+  background: var(--gak-surface, #fff);
+  transition:
+    border-color var(--gak-transition-fast, 0.15s ease),
+    box-shadow var(--gak-transition-fast, 0.15s ease);
+}
+
+.input::placeholder {
+  color: var(--gak-text-muted, #98a2b3);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--gak-primary, #2d8c3c);
+  box-shadow: 0 0 0 3px var(--gak-primary-light, #e8f5e9);
+}
+
+/* ─── 에러 안내 ─── */
+.error {
+  margin: -4px 0 0;
+  font-size: var(--gak-fs-base, 14px);
+  color: var(--gak-status-danger);
+}
+
+/* 발송 완료 등 성공 안내 (비밀번호 찾기 화면에서 사용) */
+.sent {
+  margin: -4px 0 0;
+  font-size: var(--gak-fs-base, 14px);
+  color: var(--gak-primary, #2d8c3c);
+}
+
+/* ─── 제출 버튼 ─── */
+.submitBtn {
+  margin-top: 6px;
+  padding: 13px 16px;
+  border: none;
+  border-radius: var(--gak-radius-md, 8px);
+  background: var(--gak-primary, #2d8c3c);
+  font-family: inherit;
+  font-size: var(--gak-fs-md, 15px);
+  font-weight: var(--gak-fw-bold, 700);
+  color: var(--gak-text-inverse, #fff);
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast, 0.15s ease);
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: var(--gak-primary-hover, #236b2e);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ─── 보조 링크 ─── */
+.helpers {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--gak-fs-base, 14px);
+  color: var(--gak-text-secondary, #475467);
+}
+
+.textLink {
+  color: var(--gak-text-secondary, #475467);
+  text-decoration: none;
+}
+
+.textLink:hover {
+  color: var(--gak-primary, #2d8c3c);
+  text-decoration: underline;
+}
+
+.signupRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.signupLink {
+  font-weight: var(--gak-fw-bold, 700);
+  color: var(--gak-primary, #2d8c3c);
+  text-decoration: none;
+}
+
+.signupLink:hover {
+  text-decoration: underline;
+}
+
+/* ─── 구분선 ─── */
+.divider {
+  margin: 28px 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--gak-fs-sm, 13px);
+  color: var(--gak-text-muted, #98a2b3);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gak-border, #d0d5dd);
+}
+
+/* ─── 간편 로그인 ─── */
+.socialList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.socialBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--gak-radius-md, 8px);
+  font-family: inherit;
+  font-size: var(--gak-fs-md, 15px);
+  font-weight: var(--gak-fw-medium, 500);
+  cursor: pointer;
+  transition:
+    background-color var(--gak-transition-fast, 0.15s ease),
+    border-color var(--gak-transition-fast, 0.15s ease);
+}
+
+.kakaoBtn {
+  border: 1px solid #fee500;
+  background: #fee500;
+  color: #191600;
+}
+
+.kakaoBtn:hover {
+  background: #f2da00;
+  border-color: #f2da00;
+}
+
+.googleBtn {
+  border: 1px solid var(--gak-border, #d0d5dd);
+  background: var(--gak-surface, #fff);
+  color: var(--gak-text, #101828);
+}
+
+.googleBtn:hover {
+  background: var(--gak-bg-subtle, #f7f9fa);
+}

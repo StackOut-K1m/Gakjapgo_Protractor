@@ -1,0 +1,63 @@
+.status-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--gak-space-3) var(--gak-space-5);
+  padding: var(--gak-space-3) var(--gak-space-4);
+  border-bottom: 1px solid var(--gak-border);
+  background: var(--gak-surface);
+}
+
+.status-label {
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-secondary);
+  word-break: keep-all;
+  transition:
+    color var(--gak-transition-base),
+    font-size var(--gak-transition-base);
+}
+
+/* 상황 자체가 원인일 때 (예: 카메라 꺼짐) */
+.status-label[data-cause='true'] {
+  font-size: calc(var(--gak-fs-sm) * 1.3);
+  color: var(--gak-status-danger);
+}
+
+.status-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--gak-space-3) var(--gak-space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-medium);
+  color: var(--gak-text-secondary);
+  white-space: nowrap;
+  transition:
+    color var(--gak-transition-base),
+    font-size var(--gak-transition-base);
+}
+
+/* 해당 상황에 걸린 항목만 강조 */
+.status-item[data-state='warning'] {
+  font-size: calc(var(--gak-fs-sm));
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-status-danger);
+}
+
+/* 판단 불가 — 회색으로 죽인다 */
+.status-item[data-state='paused'] {
+  color: var(--gak-text-muted);
+  opacity: 0.7;
+}

@@ -1,0 +1,178 @@
+/*
+ * 친구 한 줄과, 그 아래로 펼쳐지는 액션 패널.
+ * 치수는 와이어프레임(friendlist.css) 값이고 색은 앱 토큰으로 옮겼다.
+ */
+.row {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  box-sizing: border-box;
+  width: 100%;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+
+  border: 1px solid transparent;
+  border-radius: var(--gak-radius-md);
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--gak-transition-fast);
+}
+
+.item:hover {
+  background: var(--gak-surface-alt);
+}
+
+/* 메뉴를 펼쳐 둔 항목은 계속 눌린 상태로 보여야 어느 사람의 메뉴인지 알 수 있다 */
+.item[data-selected='true'] {
+  background: var(--gak-surface-alt);
+  border-color: var(--gak-border);
+}
+
+.avatar {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 이름 + 마지막 대화. 와이어프레임의 Details 칸(간격 2px)과 같은 구성이다 */
+.details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+/* 마지막 대화 한 줄. 길면 잘라 낸다 — 두 줄이 되면 항목 높이가 흔들린다 */
+.preview {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-secondary);
+}
+
+/* 안 본 대화가 있으면 미리보기를 진하게 — 점만으로는 어느 대화인지 눈에 덜 들어온다 */
+.preview[data-unread='true'] {
+  color: var(--gak-text);
+  font-weight: var(--gak-fw-medium);
+}
+
+/* 시각과 안 읽음 점. 이름 칸이 줄어들 때 이 칸은 그대로 남는다 */
+.meta {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.time {
+  font-size: 11px;
+  color: var(--gak-text-muted);
+  white-space: nowrap;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-status-danger);
+}
+
+/*
+ * 액션 패널 자리. 왼쪽 40px 은 아바타(36) + 간격을 지나 이름 아래에서 시작하게 하는 값이다
+ * (와이어프레임 padding: 4px 0 4px 40px).
+ */
+.action-wrap {
+  padding: 4px 0 4px 40px;
+}
+
+.action-panel {
+  box-sizing: border-box;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  box-shadow: var(--gak-shadow-md);
+}
+
+.action-item {
+  box-sizing: border-box;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+
+  border: none;
+  border-radius: var(--gak-radius-sm);
+  background: none;
+  font-family: inherit;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.action-item:hover {
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+  font-weight: var(--gak-fw-bold);
+}
+
+/* 삭제는 되돌릴 수 없다. 다른 항목과 같은 초록으로 강조하면 실수로 누르기 쉽다. */
+.action-item[data-variant='danger']:hover {
+  background: rgba(240, 70, 82, 0.12);
+  color: var(--gak-status-danger);
+  font-weight: var(--gak-fw-bold);
+}
+
+.action-item:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.action-icon {
+  display: flex;
+  flex: none;
+}

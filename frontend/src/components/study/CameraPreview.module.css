@@ -1,0 +1,126 @@
+.camera-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface-dark);
+  overflow: hidden;
+}
+
+.preview-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* 거울 모드 */
+}
+
+.camera-preview[data-status='not-found'] .preview-video {
+  filter: brightness(0.35);
+}
+
+.preview-tag,
+.preview-quality {
+  position: absolute;
+  top: var(--gak-space-3);
+  z-index: var(--gak-z-badge);
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  letter-spacing: 0.06em;
+  color: var(--gak-text-inverse);
+}
+
+.preview-tag {
+  left: var(--gak-space-3);
+}
+
+.preview-quality {
+  right: var(--gak-space-3);
+  opacity: 0.7;
+}
+
+.record-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-live);
+}
+
+/* ── 점선 가이드 ── */
+/* 고정 점선 가이드(.guide-layer / .guide-face / .guide-shoulder)는 걷어냈다.
+   박스 비율에 박힌 도형이라 실제 통과 조건과 무관했고, 맞추라는 건지 담으라는 건지가
+   모호했다. 지금은 아래 캔버스가 인식된 내 머리·어깨를 직접 그린다. */
+.landmark-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: var(--gak-z-overlay);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ── 실패 경고 ── */
+.error-callout {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--gak-z-badge);
+  width: min(360px, 80%);
+  padding: var(--gak-space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-2);
+  border: 1px solid var(--gak-status-danger);
+  border-radius: var(--gak-radius-md);
+  background: rgba(12, 18, 32, 0.92);
+  text-align: center;
+  word-break: keep-all;
+}
+
+.error-title {
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-inverse);
+}
+
+.error-desc {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* ── 하단 문구 ── */
+.guide-caption {
+  position: absolute;
+  bottom: var(--gak-space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--gak-z-badge);
+  margin: 0;
+  padding: var(--gak-space-2) var(--gak-space-4);
+  border-radius: var(--gak-radius-full);
+  background: rgba(12, 18, 32, 0.85);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-inverse);
+  white-space: nowrap;
+}
+
+.denied-cover {
+  position: absolute;
+  inset: 0;
+  z-index: var(--gak-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gak-space-6);
+  background: rgba(12, 18, 32, 0.95);
+  text-align: center;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text-inverse);
+  word-break: keep-all;
+}

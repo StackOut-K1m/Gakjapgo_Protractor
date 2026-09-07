@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>WebSocket(STOMP) 인증 테스트</title>
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 680px; margin: 40px auto; }
+    input { padding:6px; margin:2px 0; width: 320px; }
+    button { padding: 8px 14px; margin: 4px 6px 4px 0; }
+    #log { background:#111; color:#0f0; padding:12px; height:280px; overflow:auto; white-space:pre-wrap; margin-top:12px; }
+    .box { border:1px solid #ccc; padding:12px; border-radius:8px; margin-bottom:12px; }
+  </style>
+</head>
+<body>
+  <h2>WebSocket(STOMP) 인증 + 연결 테스트</h2>
+
+  <div class="box">
+    <b>1) 로그인해서 토큰 받기</b><br/>
+    <input id="email" placeholder="email" value="" /><br/>
+    <input id="password" type="password" placeholder="password" value="" /><br/>
+    <button onclick="login()">login</button>
+    <div>token: <input id="token" placeholder="accessToken (login 하면 자동 입력)" /></div>
+  </div>
+
+  <div class="box">
+    <b>2) 그 토큰으로 WebSocket 연결</b><br/>
+    <button onclick="connect()">connect</button>
+    <button onclick="sendPing()">send ping</button>
+    <button onclick="disconnect()">disconnect</button>
+    <button onclick="connectNoToken()">connect (토큰 없이 → 실패해야 정상)</button>
+  </div>
+
+  <div class="box">
+    <b>3) 채팅 (roomId 방에 입장한 뒤 사용)</b><br/>
+    roomId: <input id="roomId" value="1" style="width:80px" />
+    <button onclick="subscribeRoom()">채팅 구독</button>
+    <button onclick="subscribeParticipants()">참여자 구독</button>
+    <button onclick="subscribeTimer()">타이머 구독</button><br/>
+    <input id="chat" placeholder="메시지 입력" />
+    <button onclick="sendChat()">전송</button>
+    <hr/>
+    <b>타이머 (방장만)</b>
+    <button onclick="startTimer()">타이머 시작</button>
+    <button onclick="stopTimer()">타이머 정지</button>
+  </div>
+
+  <div id="log"></div>
+
+  <script>
+    let client;
+    const logEl = document.getElementById('log');
+    const $ = (id) => document.getElementById(id);
+    function log(m) { logEl.textContent += m + "\n"; logEl.scrollTop = logEl.scrollHeight; }
+
+    async function login() {
+      try {
+        const res = await fetch('/api/v1/auth/login', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: $('email').value, password: $('password').value })
+        });
+        if (!res.ok) { log('❌ login 실패 ' + res.status); return; }
+        const data = await res.json();
+        $('token').value = data.accessToken;
+        log('✅ login 성공, 토큰 입력됨 (memberId=' + (data.member ? data.member.memberId : '?') + ')');
+      } catch (e) { log('❌ login 에러: ' + e); }
+    }
+
+    function open(headers) {
+      client = new StompJs.Client({
+        brokerURL: 'ws://' + location.host + '/ws',
+        connectHeaders: headers
+      });
+      client.onConnect = () => {
+        log('✅ CONNECTED');
+        client.subscribe('/topic/pong', (msg) => log('⬇ recv: ' + msg.body));
+        log('subscribed: /topic/pong');
+      };
+      client.onStompError = (f) => log('❌ STOMP ERROR: ' + (f.headers['message'] || f.body));
+      client.onWebSocketError = () => log('❌ WebSocket 연결 실패');
+      client.onWebSocketClose = (e) => log('WS closed (code=' + e.code + ')');
+      client.activate();
+    }
+
+    function connect() {
+      const t = $('token').value.trim();
+      if (!t) { log('먼저 login 하거나 token을 입력하세요'); return; }
+      log('connect with token...');
+      open({ Authorization: 'Bearer ' + t });
+    }
+
+    function connectNoToken() { log('connect WITHOUT token...'); open({}); }
+
+    function sendPing() {
+      if (!client || !client.connected) { log('먼저 connect 하세요'); return; }
+      const body = 'hello ' + new Date().toLocaleTimeString();
+      client.publish({ destination: '/app/ping', body: body });
+      log('⬆ send: ' + body);
+    }
+
+    function subscribeRoom() {
+      if (!client || !client.connected) { log('먼저 connect 하세요'); return; }
+      const roomId = $('roomId').value.trim();
+      client.subscribe('/topic/study-rooms/' + roomId + '/messages', (msg) => {
+        const m = JSON.parse(msg.body);
+        log('💬 [' + m.senderNickname + '] ' + m.content);
+      });
+      log('채팅 구독: /topic/study-rooms/' + roomId + '/messages');
+    }
+
+    function subscribeParticipants() {
+      if (!client || !client.connected) { log('먼저 connect 하세요'); return; }
+      const roomId = $('roomId').value.trim();
+      client.subscribe('/topic/study-rooms/' + roomId + '/participants', (msg) => {
+        const e = JSON.parse(msg.body);
+        log('👥 ' + e.nickname + ' ' + (e.type === 'JOINED' ? '입장' : '퇴장') + ' (현재 ' + e.participantsCount + '명)');
+      });
+      log('참여자 구독: /topic/study-rooms/' + roomId + '/participants');
+    }
+
+    function subscribeTimer() {
+      if (!client || !client.connected) { log('먼저 connect 하세요'); return; }
+      const roomId = $('roomId').value.trim();
+      client.subscribe('/topic/study-rooms/' + roomId + '/timer', (msg) => {
+        const t = JSON.parse(msg.body);
+        log('⏱ ' + t.type + ' | ' + t.phase + ' #' + t.sequence + ' (' + t.durationSeconds + '초)');
+      });
+      log('타이머 구독: /topic/study-rooms/' + roomId + '/timer');
+    }
+
+    async function timerControl(action) {
+      const roomId = $('roomId').value.trim();
+      const t = $('token').value.trim();
+      const r = await fetch('/api/v1/study-rooms/' + roomId + '/timer/' + action, {
+        method: 'POST', headers: { 'Authorization': 'Bearer ' + t }
+      });
+      log('타이머 ' + action + ' (REST) → ' + r.status);
+    }
+    function startTimer() { timerControl('start'); }
+    function stopTimer() { timerControl('stop'); }
+
+    function sendChat() {
+      if (!client || !client.connected) { log('먼저 connect 하세요'); return; }
+      const roomId = $('roomId').value.trim();
+      const content = $('chat').value;
+      client.publish({ destination: '/app/study-rooms/' + roomId + '/messages', body: JSON.stringify({ content: content }) });
+      $('chat').value = '';
+    }
+
+    function disconnect() { if (client) { client.deactivate(); log('disconnected'); } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    # 로컬 개발은 Docker MySQL 기준입니다.
+    url: ${DB_URL:jdbc:mysql://mysql:3306/protractor?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${DB_USERNAME:protractor}
+    password: ${DB_PASSWORD:protractor}
+
+  # Redis 기능이 추가될 때 Docker 네트워크 안의 redis 컨테이너로 연결하기 위한 기본값입니다.
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}

@@ -1,0 +1,152 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--gak-z-modal, 100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gak-space-4);
+  background: var(--gak-overlay);
+}
+
+.dialog {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  padding: var(--gak-space-6) var(--gak-space-5) var(--gak-space-5);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.24);
+}
+
+.close-btn {
+  position: absolute;
+  top: var(--gak-space-3);
+  right: var(--gak-space-3);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--gak-radius-full);
+  background: none;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background: var(--gak-bg);
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-2);
+  text-align: center;
+}
+
+.avatar-image,
+.avatar-fallback {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--gak-radius-full);
+  object-fit: cover;
+}
+
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gak-primary-light);
+  font-size: var(--gak-fs-logo);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-primary);
+}
+
+.name {
+  margin: var(--gak-space-2) 0 0;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.self-tag {
+  padding: 1px 8px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-primary);
+}
+
+.sub {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  word-break: break-all;
+}
+
+.actions {
+  margin-top: var(--gak-space-5);
+  display: flex;
+  gap: var(--gak-space-2);
+}
+
+.action-btn {
+  flex: 1;
+  padding: var(--gak-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--gak-radius-md);
+  font-family: inherit;
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+  transition:
+    background-color var(--gak-transition-fast),
+    border-color var(--gak-transition-fast);
+}
+
+.action-btn[data-variant='primary'] {
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.action-btn[data-variant='primary']:hover {
+  background: var(--gak-primary-hover);
+}
+
+.action-btn[data-variant='quiet'] {
+  border-color: var(--gak-border);
+  background: var(--gak-surface);
+  color: var(--gak-text);
+}
+
+.action-btn[data-variant='quiet']:hover {
+  background: var(--gak-bg);
+}
+
+.notice {
+  margin: var(--gak-space-3) 0 0;
+  padding: var(--gak-space-3);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-bg);
+  font-size: var(--gak-fs-xs);
+  line-height: 1.6;
+  color: var(--gak-text-secondary);
+}
+
+/* 화면에서만 도는 상태라는 걸 숨기지 않는다. 친구 신청이 실제로 갔다고 오해하면
+   상대가 왜 응답을 안 하냐는 쪽으로 문제가 번진다. */
+.disclaimer {
+  margin: var(--gak-space-3) 0 0;
+  font-size: var(--gak-fs-xs);
+  line-height: 1.5;
+  color: var(--gak-text-muted);
+  text-align: center;
+}

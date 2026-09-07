@@ -1,0 +1,296 @@
+server:
+  # 백엔드가 외부 요청을 받는 HTTP 포트다.
+  # Docker compose에서는 localhost:8080 -> backend container:8080 으로 연결한다.
+  port: 8080
+  error:
+    # 기본값(never)이면 ResponseStatusException에 적어 둔 안내 문구가 응답에서 사라져서
+    # 프론트도 우리도 원인을 알 수 없다. 그래서 메시지는 항상 내보낸다.
+    include-message: always
+    # 스택트레이스는 ?trace=true 를 붙였을 때만 나간다. 평소 응답에는 포함되지 않는다.
+    include-stacktrace: on_param
+
+spring:
+  # 기본 프로필을 local로 둔다 → 로컬 실행 시 application-local.yml이 자동 적용된다.
+  # Docker 실행 시에는 SPRING_PROFILES_ACTIVE=docker 환경변수가 이 값을 덮어써서 docker 설정을 쓴다.
+  profiles:
+    default: local
+  application:
+    name: backend
+
+  # refresh token 저장소. docker compose up -d redis 로 컨테이너를 띄워야 로그인/재발급이 동작한다.
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  # 비밀번호 찾기 메일 발송용 Gmail SMTP.
+  # MAIL_USERNAME=지메일주소, MAIL_PASSWORD=구글 앱 비밀번호(계정 비밀번호 아님)를 환경변수로 주입해야 발송된다.
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  # 게시판 첨부 업로드 한도. 파일당 10MB(BoardService 검증과 같은 값), 요청당 55MB(최대 5개 + 여유).
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 55MB
+
+  datasource:
+    # 기본값은 로컬 실행용이다. Docker 실행 시에는 application-docker.yml 또는 DB_URL 환경변수로 덮어쓴다.
+    url: ${DB_URL:jdbc:mysql://localhost:3306/protractor?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # 테이블을 JPA가 자동 생성/수정하지 않게 둔다. 현재는 schema.sql로 DB 구조를 관리한다.
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+    # Controller 응답 이후까지 DB 세션을 열어두지 않게 해서 예측 가능한 트랜잭션 경계를 만든다.
+    open-in-view: false
+
+# 소셜 로그인. 클라이언트 키는 환경변수로만 주입한다 (코드/저장소에 미포함).
+oauth:
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID:}
+    # 카카오 콘솔에서 client secret을 활성화한 경우에만 설정
+    client-secret: ${KAKAO_CLIENT_SECRET:}
+    redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:8080/api/v1/auth/oauth/kakao/callback}
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
+    redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/api/v1/auth/oauth/google/callback}
+
+jwt:
+  # 운영 환경에서는 반드시 JWT_SECRET 환경 변수로 주입 (HS256 최소 32바이트)
+  secret: ${JWT_SECRET:protractor-local-dev-jwt-secret-key-must-be-long-enough-256bit}
+  access-token-validity-ms: ${JWT_ACCESS_TOKEN_VALIDITY_MS:3600000}
+  # 14일. 만료 전 재발급(rotation) 시마다 새로 갱신된다.
+  refresh-token-validity-ms: ${JWT_REFRESH_TOKEN_VALIDITY_MS:1209600000}
+
+springdoc:
+  swagger-ui:
+    # Swagger UI 접속 경로다.
+    path: /swagger-ui.html
+
+# Docker healthcheck와 서버 상태 확인에 사용하는 Spring Actuator 설정이다.
+# compose의 backend healthcheck가 /actuator/health 응답을 보고 정상 여부를 판단한다.
+management:
+  health:
+    mail:
+      # SMTP 연결을 health에 포함하면 메일 환경변수가 없는 로컬/도커에서 서버 전체가 DOWN으로 표시된다.
+      # 메일은 부가 기능이므로 health 판정에서 제외한다.
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+# frontend와 backend가 다른 주소/포트에서 실행될 때 API 호출을 허용하기 위한 CORS 설정이다.
+# Docker compose에서는 CORS_ALLOWED_ORIGINS 환경변수로 값을 덮어쓸 수 있다.
+app:
+  auth:
+    # 회원가입 시 이메일 인증(코드 발송·확인)을 강제할지. 발송·확인 API 자체는 이 값과 무관하게 항상 열려 있다.
+    # FE 가입 화면에 인증 UI가 아직 없는 배포에서는 false로 꺼서 가입이 막히지 않게 한다.
+    email-verification-enabled: ${EMAIL_VERIFICATION_ENABLED:true}
+  # 소셜 로그인 완료 후 토큰을 들고 돌아갈 프론트엔드 페이지.
+  # 토큰은 URL 프래그먼트(#)로 전달되어 서버 로그에 남지 않는다.
+  oauth:
+    frontend-callback-url: ${OAUTH_FRONTEND_CALLBACK_URL:http://localhost:5173/oauth/callback}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+  # 게시판 첨부파일 저장 디렉터리. 리포트(app.report.storage-dir)처럼 로컬 디스크에 두며
+  # data/는 backend/.gitignore에 이미 제외되어 있다. 배포에서는 볼륨 경로를 환경변수로 주입한다.
+  board:
+    upload-dir: ${BOARD_UPLOAD_DIR:./data/uploads/posts}
+    # 인프라 compose의 BOARD_ATTACHMENTS_ENABLED(true/false)를 첨부 기능 스위치로 사용한다.
+    # APP_BOARD_ATTACHMENTS_ENABLED 대신 배포 측의 짧은 환경변수 이름을 명시적으로 매핑한다.
+    attachments-enabled: ${BOARD_ATTACHMENTS_ENABLED:false}
+  # 프로필 사진 저장 디렉터리. 게시판 첨부와 같은 자리(data/)에 둔다.
+  member:
+    profile-image-dir: ${PROFILE_IMAGE_DIR:./data/uploads/profile-images}
+  # OpenVidu(화상/음성 서버) 접속 정보. openvidu-dev는 dev 모드라 HTTP로 서비스한다(HTTPS 아님).
+  # docker 프로필에서는 OPENVIDU_URL 환경변수(http://openvidu:4443)가 덮어쓴다.
+  openvidu:
+    url: ${OPENVIDU_URL:http://localhost:4443}
+    secret: ${OPENVIDU_SECRET:MY_SECRET}
+
+  # 자세 판정 임계값. 데이터가 쌓이면 계속 조정하게 되므로 코드가 아니라 설정에 둔다(재배포 없이 변경).
+  # 아래 값은 실측 전 초기값이다. AI 정확도 테스트 후 학습셋으로 튜닝해 확정한다.
+  posture:
+    # 요청이 판정 방식을 지정하지 않았을 때 쓸 기본값. rule-based / hybrid / hybrid-delta / hybrid-v1 / hybrid-v2.
+    # 판정기는 등록된 것이 모두 살아 있고, 요청 본문의 detector 값으로 프레임마다 고른다(GET /api/v1/posture-detectors).
+    # 여기 적은 키가 등록되지 않았으면 조용히 다른 것으로 흘러가지 않고 기동에서 막는다.
+    detector: ${POSTURE_DETECTOR:hybrid}
+    # 이 심각도 이상이 관찰 구간(window-seconds) 내내 지속되면 알림을 보낸다.
+    #
+    # 4에서 1로 내렸다. 화면의 "주의"(노랑) 구간을 없애고 나쁜 자세면 곧장 경고로 보기로 했다.
+    # 재학습한 모델은 확률이 극단으로 쏠리지 않아 심각도 4(확률 0.85)에 거의 닿지 않는다 —
+    # 테스트 픽스처의 거북목 프레임도 0.48(심각도 1)이다. 기준을 4로 두면 경고가 사실상 안 뜬다.
+    #
+    # 심각도 1이 걸리는 확률은 severity-probabilities 의 첫 경계다. 그 값을 0.40 에서 0.50 으로
+    # 올렸으므로 지금 이 줄은 "확률 0.50 이상"을 뜻한다. 0.50 은 학습 노트북이 F1/F2 를 재는
+    # 지점(threshold=0.5)과 같은 선이다 — 경고가 뜨는 확률과 성능을 재는 확률이 다르면
+    # 노트북 점수가 서비스 동작을 설명하지 못한다.
+    #
+    # ⚠️ 경계를 옮겼으므로 판정기 4종(hybrid / hybrid-delta / hybrid-v1 / hybrid-v2)의
+    #    severity-probabilities 첫 값을 모두 같이 옮겼다. 하나만 옮기면 화면에서 판정기를
+    #    바꿔 누를 때 경고가 뜨는 확률이 달라져 모델 비교가 성립하지 않는다.
+    alert-severity: 1
+    # 해소 기준은 확정 기준보다 낮게 둔다. 같으면 임계값 근처에서 알림이 깜빡인다(히스테리시스).
+    # 확정이 1이므로 해소는 0 — 심각도가 0으로 완전히 떨어져야 풀린다. 1로 두면 확정과 같아져
+    # 히스테리시스가 사라지고, 그보다 높게 두면 경고가 뜬 즉시 해소돼 이벤트가 닫혀 버린다.
+    release-severity: 0
+    # 관찰 구간(초). 이 시간을 채워야 판정한다.
+    #
+    # 이 값을 바꾸면 프론트의 POSTURE_WINDOW_SECONDS·CHIN_REST_HOLD_SECONDS 도 같이 바꿔야 한다.
+    # 판정은 서버가 하지만 화면의 "N/10초" 카운터는 프론트가 자기 상수로 센다 — 한쪽만 바꾸면
+    # 카운터가 다 찼는데 경고가 안 뜨거나, 그 반대가 된다.
+    #
+    # 30 → 10. 나쁜 자세를 30초나 참아 주면 경고가 올 때쯤엔 이미 목이 아프다. 표본은
+    # 1Hz 라 10초면 10개 — risk-ratio 0.8 기준으로 8개가 나빠야 하므로, 잠깐 자세가
+    # 흐트러진 것으로는 걸리지 않는다.
+    window-seconds: 10
+    # 관찰 구간 중 이 비율 이상이 위험이면 확정한다. "연속"으로 하면 프레임이 한 번만 튀어도 처음부터 다시 세게 된다.
+    risk-ratio: 0.8
+    # 바른 자세(release-severity 이하)가 이만큼 연속되면 해소로 보고 관찰 구간을 비운다.
+    # 비우지 않으면 창이 나쁜 표본으로 가득 찬 채 남아서, 자세가 다시 흐트러지는 순간 곧바로 재확정된다.
+    # 전송 주기가 1Hz라 표본 1개 = 1초다. 프론트 안내 문구("바른 자세를 2초간 유지하면")가 이 값을 따른다.
+    recovery-seconds: 2
+    # 프레임이 이 시간(초)보다 오래 끊기면 측정이 멈춘 것으로 본다(스트레칭·휴식·탭 전환·연결 끊김).
+    # 끊긴 동안의 자세는 알 수 없으므로 열려 있던 이벤트를 마지막 프레임 시각에서 닫는다.
+    # 브라우저가 1초에 한 장씩 보내므로 몇 장 빠지는 정도로는 걸리지 않게 넉넉히 둔다.
+    gap-seconds: 5
+    # 랜드마크 신뢰도가 이보다 낮으면 판정을 보류한다(머리카락·옷에 가려진 경우).
+    min-visibility: 0.5
+    # 몸통 회전 추정치가 이보다 크면 어깨 관련 판정을 보류한다. 몸을 튼 것과 자세가 나쁜 것을 구분할 수 없기 때문이다.
+    max-torso-rotation: 0.35
+    # 서버가 만든 이벤트의 알림 채널. VOICE / TEXT / VISUAL
+    alert-channel: VISUAL
+    # 기준선 대비 이탈 각도(도)를 심각도 1~5로 나누는 경계값이다. 자세마다 민감도가 달라 따로 둔다.
+    # 라운드숄더는 판정하지 않는다(RuleBasedPostureDetector 주석 참고). 어깨가 말릴 때 지표가 움직이는
+    # 방향이 사람마다 반대라 임계값의 부호조차 정할 수 없었다. 공부방에서는 턱 괴기가 그 자리를 대신한다.
+    severity-degrees:
+      forward-head: 4,8,12,16,20
+      shoulder-tilt: 2,4,6,8,10
+    # 하이브리드 판정기(방법 B).
+    hybrid:
+      # 하이브리드를 아예 등록하지 않는 비상 스위치. 모델 파일이 깨져 기동이 막힐 때만 false 로 둔다.
+      # false 로 두면 detector 기본값도 rule-based 로 바꿔야 한다(없는 판정기를 기본값으로 두면 기동에 실패한다).
+      enabled: ${POSTURE_HYBRID_ENABLED:true}
+      # ai/train.ipynb 가 내보낸 모델 JSON. ai/models/ 에서 여기로 복사해 온 것이며, 재학습하면 다시 복사해야 한다.
+      # 파일을 그대로 덮어써도 된다 — 서버는 기동할 때 이 경로를 읽을 뿐이라 내용이 바뀌면 바뀐 대로 싣는다.
+      # 비워 두면 그 자세는 학습 모델 없이 규칙 기반으로 판정한다. 아직 안 만든 모델은 비워 두면 된다.
+      #
+      # 환경변수로 다른 파일을 가리킬 수도 있다. 재학습본을 나란히 올려 두고 어느 것이 나은지 볼 때,
+      # 덮어쓰고 되돌리는 대신 POSTURE_FORWARD_HEAD_MODEL=classpath:models/turtleneck_model_2.json 처럼
+      # 띄우면 된다(재배포 없이 재기동만 하면 바뀐다).
+      forward-head-model: ${POSTURE_FORWARD_HEAD_MODEL:classpath:models/turtleneck_model.json}
+      shoulder-tilt-model: ${POSTURE_SHOULDER_TILT_MODEL:classpath:models/shoulder_tilt_model.json}
+      # 모델이 낸 확률을 심각도 1~5로 나누는 경계값이다. 규칙 기반의 severity-degrees와 같은 역할을 한다.
+      # 로지스틱 확률은 경계 근처에서 급격히 0이나 1로 쏠려서, 경계를 촘촘히 두면 심각도 2~4를
+      # 거의 건너뛰고 곧장 5로 튄다. 그래서 뒤쪽을 벌려 두었다.
+      #
+      # 첫 경계를 0.40 -> 0.50 으로 올렸다. 이 값이 곧 alert-severity: 1 이 걸리는 확률이고,
+      # 0.50 은 학습 노트북이 F1/F2 를 재는 지점(threshold=0.5)이다. 0.40 이던 시절에는
+      # 노트북이 "0.5 기준 F1 0.68"이라고 말하는데 서비스는 0.40 에서 경고를 띄우고 있어서,
+      # 측정한 운영점과 실제 운영점이 달랐다.
+      #
+      # 대신 심각도 1 구간이 [0.50, 0.55) 로 좁아졌다 — 확률이 0.55 를 넘으면 곧장 2가 된다.
+      # 알림 동작(1 이상)에는 영향이 없지만 리포트의 심각도 분포는 위로 밀린다.
+      # 1~5를 고르게 쓰고 싶으면 뒤 네 값도 함께 벌려야 한다(예: 0.50,0.62,0.74,0.86,0.95).
+      severity-probabilities: 0.50,0.55,0.70,0.85,0.95
+    # 개인 기준선 델타 판정기(방법 B'). 하이브리드와 같되 모델이 캘리브레이션 대비 편차까지 본다.
+    #
+    # 하이브리드 모델은 절대 기준이라 목이 원래 긴 사람을 바른 자세에서도 거북목으로 본다. 규칙 기반은
+    # 캘리브레이션 대비 편차로 판정해 그 문제가 없는데, 하이브리드로 넘어가면 개인차 보정이 빠진다.
+    # ai/train.ipynb 12절(train_delta)이 그 편차를 피처로 넣어 다시 학습한 모델을 만든다.
+    hybrid-delta:
+      # 하이브리드와 같은 비상 스위치. 델타 모델 파일이 깨졌을 때만 false 로 둔다.
+      enabled: ${POSTURE_HYBRID_DELTA_ENABLED:true}
+      # 두 자세 모두 델타 모델을 쓴다. 이래야 이 판정기가 "개인 기준선을 보는 방식" 하나로 일관되고,
+      # 하이브리드와의 차이가 자세마다 달라지지 않는다.
+      #
+      # 6명 데이터의 사람 단위 F1 은 거북목 0.617 -> 0.676(개선), 어깨 높낮이 0.913 -> 0.890(악화)이다.
+      # 어깨 쪽이 조금 낮지만 0.023 은 폴드 하나가 흔들리면 뒤집히는 크기라 학습 수치만으로 자르지 않고,
+      # 화면에서 하이브리드와 번갈아 눌러 보고 정한다. 되돌리려면 아래 한 줄을
+      # classpath:models/shoulder_tilt_model.json 으로 되돌리면 된다.
+      forward-head-model: ${POSTURE_DELTA_FORWARD_HEAD_MODEL:classpath:models/turtleneck_delta_model.json}
+      shoulder-tilt-model: ${POSTURE_DELTA_SHOULDER_TILT_MODEL:classpath:models/shoulder_tilt_delta_model.json}
+      # 하이브리드와 같은 경계로 시작한다. 델타 모델은 확률 분포가 달라서 이 값이 그대로 맞는다는
+      # 보장이 없다 — dev 패널에서 두 방식을 번갈아 눌러 보고 경고 빈도가 크게 다르면 여기를 조정한다.
+      severity-probabilities: 0.50,0.55,0.70,0.85,0.95
+    # 모델 파일만 다른 하이브리드 변형 2종(HybridVariantDetectorConfig).
+    # 판정 방식은 hybrid 와 완전히 같고 어떤 JSON 을 싣는지만 다르므로, 화면에서 버튼을 바꿔 눌렀을 때
+    # 나오는 차이는 전부 모델 차이다. 실험이 끝나면 이 두 블록과 위 설정 클래스를 지우면 원래대로 돌아간다.
+    hybrid-v1:
+      # 이 변형만 끄는 스위치. 모델 하나가 깨져도 나머지 판정기는 그대로 뜬다.
+      enabled: ${POSTURE_HYBRID_V1_ENABLED:true}
+      forward-head-model: ${POSTURE_V1_FORWARD_HEAD_MODEL:classpath:models/turtleneck_model_1.json}
+      shoulder-tilt-model: ${POSTURE_V1_SHOULDER_TILT_MODEL:classpath:models/shoulder_tilt_model_1.json}
+      # 하이브리드와 같은 경계로 시작한다. 모델이 다르면 확률 분포도 달라서, 경고 빈도가 눈에 띄게
+      # 차이 나면 여기를 따로 조정한다(경계까지 같아야 모델 차이만 비교되는 것은 아니다).
+      severity-probabilities: 0.50,0.55,0.70,0.85,0.95
+    hybrid-v2:
+      enabled: ${POSTURE_HYBRID_V2_ENABLED:true}
+      forward-head-model: ${POSTURE_V2_FORWARD_HEAD_MODEL:classpath:models/turtleneck_model_2.json}
+      shoulder-tilt-model: ${POSTURE_V2_SHOULDER_TILT_MODEL:classpath:models/shoulder_tilt_model_2.json}
+      severity-probabilities: 0.50,0.55,0.70,0.85,0.95
+
+  # SSAFY GMS(LLM 게이트웨이). 주간 리포트의 소견 문장 생성에 사용한다.
+  # 키는 환경변수로만 주입한다(코드/저장소 미포함). 키가 없으면 리포트 생성이 FAILED로 남고 서버는 정상 동작한다.
+  gms:
+    base-url: ${GMS_BASE_URL:https://gms.ssafy.io/gmsapi/api.openai.com/v1}
+    # 소견 문장의 품질과 형식 준수도가 모델 등급에 크게 좌우된다. 코드 변경 없이 이 값만 바꾼다.
+    # gpt-4o-mini(2 Credit)에서 올렸다 — mini 는 프롬프트의 용어 예시를 되뇌는 수준이었고,
+    # 그래프 판독 절(v3)처럼 소제목 형식을 지켜야 하는 출력에서 형식 이탈도 잦았다.
+    # 리포트는 사용자당 주 1회라 호출량이 적어 등급을 올릴 여유가 있다(gpt-4.1 = 16 Credit).
+    model: ${GMS_MODEL:gpt-4.1}
+    api-key: ${GMS_API_KEY:}
+    # 소견 응답 토큰 상한. 한국어는 토큰을 많이 먹고 소견에 표 2개와 그래프 판독 3문단이
+    # 들어가서, 프로토타입 값(1500)으로는 뒤쪽 절이 잘린다. 잘리면 생성을 실패로 남긴다.
+    max-tokens: ${GMS_MAX_TOKENS:3000}
+    # 낮게 두어 수치 해석이 흔들리지 않게 한다(프로토타입 값).
+    temperature: ${GMS_TEMPERATURE:0.4}
+
+  # 주간 리포트 PDF 생성 설정.
+  report:
+    # 생성된 PDF 저장 디렉터리. 아래 s3.bucket 이 비어 있을 때만 쓴다.
+    storage-dir: ${REPORT_STORAGE_DIR:./data/reports}
+    # PDF 보관소. bucket 을 채우면 S3 로, 비워 두면 위 storage-dir(로컬 디스크)로 동작한다.
+    # 자격증명은 AWS 기본 제공자 체인에서 찾는다(AWS_ACCESS_KEY_ID/SECRET, IAM 역할 등).
+    # 컨테이너를 다시 만들면 로컬 파일은 사라지므로 배포에서는 반드시 bucket 을 지정해야 한다.
+    s3:
+      bucket: ${REPORT_S3_BUCKET:}
+      # 비워 두면 SDK 가 환경변수·설정파일·인스턴스 메타데이터에서 리전을 찾는다.
+      region: ${REPORT_S3_REGION:}
+      # 버킷 안에서 리포트가 쓰는 최상위 폴더. 아래에 member-{memberId}/ 로 회원별로 나뉜다.
+      key-prefix: ${REPORT_S3_KEY_PREFIX:reports}
+    # 차트·PDF에 쓸 한글 폰트(TTF). 로컬(Windows)은 맑은 고딕이 기본값이고,
+    # 배포(Linux 컨테이너)에서는 나눔고딕 등을 넣고 이 경로를 환경변수로 바꿔야 한다. 없으면 생성이 FAILED로 남는다.
+    font-path: ${REPORT_FONT_PATH:C:/Windows/Fonts/malgun.ttf}
+    font-bold-path: ${REPORT_FONT_BOLD_PATH:C:/Windows/Fonts/malgunbd.ttf}
+
+  # 알림 발송 설정.
+  notification:
+    # 주간 리포트 안내 알림 발송 시각 — 매주 월요일 00:00(KST).
+    # 환경변수로 뺀 이유는 스모크에서 짧은 주기(예: */10 * * * * *)로 덮어써 발송을 바로 확인하기 위해서다.
+    report-cron: ${NOTIFICATION_REPORT_CRON:0 0 0 * * MON}

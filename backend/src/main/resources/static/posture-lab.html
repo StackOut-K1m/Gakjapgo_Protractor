@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>자세 판정 테스트 랩</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; background:#f6f7f9; color:#222; }
+    h1 { font-size: 20px; }
+    h2 { font-size: 15px; margin: 18px 0 6px; }
+    .row { margin: 8px 0; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    input { padding:6px 8px; width:90px; }
+    button { padding:6px 14px; cursor:pointer; }
+    button:disabled { opacity:.5; cursor:default; }
+    .panes { display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start; }
+    .card { background:#fff; border:1px solid #ddd; border-radius:8px; padding:12px; }
+    #stage { position:relative; width:480px; height:360px; background:#000; border-radius:8px; overflow:hidden; }
+    #cam, #overlay { position:absolute; inset:0; width:480px; height:360px; transform:scaleX(-1); }
+    #cam { object-fit:cover; }
+    table { border-collapse:collapse; font-size:13px; }
+    th, td { border:1px solid #e3e3e3; padding:4px 8px; text-align:left; }
+    th { background:#fafafa; font-weight:600; }
+    .sev0 { color:#15803d; } .sev-bad { color:#b91c1c; font-weight:600; } .sev-skip { color:#888; }
+    #feat { font-size:12px; font-variant-numeric:tabular-nums; }
+    #log { margin-top:14px; font-size:12px; white-space:pre-wrap; background:#fff; border:1px solid #ddd;
+           padding:10px; border-radius:8px; max-height:220px; overflow:auto; }
+    .warn { color:#b45309; font-size:13px; }
+    .ok { color:#15803d; } .bad { color:#b91c1c; }
+    .hint { color:#666; font-size:12px; margin:4px 0 0; }
+  </style>
+</head>
+<body>
+  <h1>자세 판정 테스트 랩 <span style="font-size:13px;color:#666">(백엔드 전용 · frontend/ 미사용)</span></h1>
+  <p class="warn">
+    ℹ️ 브라우저가 <b>카메라 권한</b>을 물으면 허용하세요. MediaPipe 모델은 CDN에서 받으므로 최초 로딩에 몇 초 걸립니다.
+  </p>
+  <p class="hint">
+    순서: ① 카메라 시작 → ② 바른 자세로 캘리브레이션 → ③ 판정 시작 → 자세를 무너뜨려 보고 confirmed가 뜨는지 확인 → ④ 세션 종료로 점수 확인
+  </p>
+
+  <div class="row">
+    memberId: <input id="memberId" value="1" />
+    sessionId(studyRecordId): <input id="sessionId" value="1" />
+    <button id="camBtn">① 카메라 시작</button>
+  </div>
+  <div class="row">
+    캘리브레이션 수집(초): <input id="calibSec" value="5" style="width:50px" />
+    <button id="calibBtn" disabled>② 캘리브레이션</button>
+    <button id="calibGetBtn">기준선 조회</button>
+    <button id="calibDelBtn">기준선 삭제</button>
+  </div>
+  <div class="row">
+    <button id="startBtn" disabled>③ 판정 시작(1Hz)</button>
+    <button id="stopBtn" disabled>판정 정지</button>
+    <button id="endBtn">④ 세션 종료 → 점수</button>
+    <button id="dumpBtn">피처 로그 JSON 저장</button>
+  </div>
+
+  <div class="panes">
+    <div id="stage">
+      <video id="cam" autoplay playsinline muted></video>
+      <canvas id="overlay" width="480" height="360"></canvas>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0">현재 피처 (PostureFeatures v1)</h2>
+      <div id="feat">카메라 대기 중…</div>
+      <h2>서버 판정</h2>
+      <table>
+        <thead><tr><th>자세</th><th>severity</th><th>이탈각(°)</th><th>보류사유</th></tr></thead>
+        <tbody id="judge"><tr><td colspan="4" class="sev-skip">판정 전</td></tr></tbody>
+      </table>
+      <p id="conf" class="hint"></p>
+    </div>
+  </div>
+
+  <div id="log"></div>
+
+<script type="module">
+import { FilesetResolver, PoseLandmarker } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+
+const $ = (id) => document.getElementById(id);
+const log = (m) => {
+  const el = $('log');
+  el.textContent += m + '\n';
+  el.scrollTop = el.scrollHeight;
+  console.log(m);
+};
+
+// ── BlazePose 랜드마크 인덱스 ────────────────────────────────────────────────
+const NOSE = 0, L_EAR = 7, R_EAR = 8, L_SHOULDER = 11, R_SHOULDER = 12;
+// 학습 모델(하이브리드 판정기)만 쓰는 추가 랜드마크. v1 피처는 눈을 보지 않는다.
+const L_EYE = 2, R_EYE = 5;
+
+/**
+ * ★ 피처 추출 — 이 함수가 이 페이지의 핵심이다.
+ *
+ * 서버는 원본 좌표를 받지 않는다(PostureFeatures javadoc 참고). 브라우저가 어깨 너비로 나눈
+ * 무차원 비율만 보낸다. 캘리브레이션과 판정이 반드시 같은 정의를 써야 하므로 두 경로 모두 이 함수 하나를 쓴다.
+ *
+ * 프론트가 실제 구현할 때 이 함수를 그대로 옮기면 서버 계약이 어긋나지 않는다.
+ *
+ * MediaPipe의 normalized 좌표는 x가 이미지 너비, y가 높이 기준이라 종횡비가 1이 아니면 단위가 다르다.
+ * 그래서 픽셀 좌표로 되돌려 계산한다.
+ */
+function extractFeatures(lm, w, h) {
+  const P = (i) => ({ x: lm[i].x * w, y: lm[i].y * h, v: lm[i].visibility ?? 0 });
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
+  const nose = P(NOSE), lEar = P(L_EAR), rEar = P(R_EAR);
+  const lSh = P(L_SHOULDER), rSh = P(R_SHOULDER);
+
+  const shoulderWidth = dist(lSh, rSh);
+  const faceWidth = dist(lEar, rEar);
+  if (shoulderWidth <= 0 || faceWidth <= 0) return null;
+
+  const shMid = mid(lSh, rSh);
+  const earMid = mid(lEar, rEar);
+
+  return {
+    capturedAtMillis: Date.now(),
+    // 귀-어깨 중점의 수평/수직 거리. 거북목 각도 = atan2(수평, 수직)
+    earShoulderOffsetRatio: Math.abs(earMid.x - shMid.x) / shoulderWidth,
+    earShoulderVerticalRatio: Math.abs(earMid.y - shMid.y) / shoulderWidth,
+    // 어깨가 앞으로 말리면 정면 어깨 폭이 줄어든다. 카메라 거리 변화를 지우려고 얼굴 너비로 나눈다.
+    shoulderToFaceWidthRatio: shoulderWidth / faceWidth,
+    // 어느 쪽 어깨가 올라갔는지 알아야 해서 부호를 유지한다.
+    shoulderTiltRatio: (lSh.y - rSh.y) / shoulderWidth,
+    // 몸통 회전: 코에서 좌우 어깨까지 거리 차이. 크면 어깨 판정을 보류한다.
+    torsoRotationRatio: Math.abs(dist(nose, lSh) - dist(nose, rSh)) / shoulderWidth,
+    neckFlexionRatio: Math.abs(nose.y - shMid.y) / shoulderWidth,
+    faceWidthRatio: faceWidth / shoulderWidth,
+    // 서버는 최솟값 기준으로 보류를 판단한다. 여기서 미리 최솟값을 낸다.
+    earVisibility: Math.min(lEar.v, rEar.v),
+    shoulderVisibility: Math.min(lSh.v, rSh.v),
+    // 학습 모델 전용 블록. 하이브리드 판정기만 쓰고, null이면 서버가 규칙 기반으로 판정한다.
+    mlFeatures: extractMlFeatures(lm, w, h),
+  };
+}
+
+/**
+ * ★ 학습 모델 전용 피처 — ai/train.ipynb 의 compute_features 를 그대로 옮긴 것이다.
+ *
+ * 위 v1 피처와 따로 계산하는 이유는 두 가지다.
+ * 1) 학습 모델이 v1에 없는 값을 쓴다 — 눈 좌표(눈 간격·머리 기울기)와 MediaPipe의 z(깊이).
+ * 2) 겹치는 4개도 정의가 미묘하게 다르다. v1은 절댓값을 쓰거나(neckFlexionRatio) 부호가
+ *    반대라서(shoulderTiltRatio), v1에서 유도하면 학습 때와 다른 값이 들어간다.
+ *
+ * ⚠️ 이 함수는 ai/train.ipynb 의 compute_features 와 100% 같아야 한다. 한 줄이라도 어긋나면
+ * 예외 없이 그럴듯하게 틀린 확률이 나온다. 모델을 재학습해 피처가 바뀌면 여기도 같이 고쳐야 한다.
+ *
+ * z는 학습 때와 같은 스케일이어야 해서 x와 같은 기준(이미지 너비)으로 되돌린다.
+ */
+function extractMlFeatures(lm, w, h) {
+  const P = (i) => ({ x: lm[i].x * w, y: lm[i].y * h, z: (lm[i].z ?? 0) * w });
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: (a.z + b.z) / 2 });
+
+  const nose = P(NOSE);
+  const lEye = P(L_EYE), rEye = P(R_EYE);
+  const lEar = P(L_EAR), rEar = P(R_EAR);
+  const lSh = P(L_SHOULDER), rSh = P(R_SHOULDER);
+
+  const shoulderWidth = dist(lSh, rSh);
+  const eyeDist = dist(lEye, rEye);
+  // 서버는 블록이 통째로 있거나 없거나만 받는다. 하나라도 못 만들면 null을 보내 규칙 기반으로 넘긴다.
+  if (shoulderWidth < 1e-6 || eyeDist < 1e-6) return null;
+
+  const shMid = mid(lSh, rSh);
+  const earMid = mid(lEar, rEar);
+  const earShoulderDy = earMid.y - shMid.y;
+  const earShoulderDz = earMid.z - shMid.z;
+
+  const headRoll = (rEye.y - lEye.y) / eyeDist;
+  const shoulderTilt = (rSh.y - lSh.y) / shoulderWidth;
+
+  return {
+    eyeDistRatio: eyeDist / shoulderWidth,
+    earDistRatio: dist(lEar, rEar) / shoulderWidth,
+    noseAboveShoulder: (shMid.y - nose.y) / shoulderWidth,
+    earAboveShoulder: (shMid.y - earMid.y) / shoulderWidth,
+    noseZRel: (nose.z - shMid.z) / shoulderWidth,
+    earZRel: earShoulderDz / shoulderWidth,
+    // 귀-어깨 측면(수직+깊이) 2D 거리 근사. 선형결합으로는 못 만드는 신호라 따로 넣는다.
+    acromionProxy: Math.hypot(earShoulderDy, earShoulderDz) / shoulderWidth,
+    headRoll,
+    shoulderTilt,
+    // 어느 쪽으로 기울든 나쁜 자세다. 선형 모델은 부호 있는 값 하나로 그걸 표현할 수 없다.
+    absShoulderTilt: Math.abs(shoulderTilt),
+    absHeadRoll: Math.abs(headRoll),
+    // 좌우 어깨의 깊이 차. 몸통을 튼 경우에 커지므로 라운드숄더와 회전을 구분한다.
+    shoulderZSpread: Math.abs(lSh.z - rSh.z) / shoulderWidth,
+  };
+}
+
+/** 캘리브레이션 기준선 = 수집한 피처의 평균. 서버 PostureBaseline 필드만 골라 낸다. */
+function averageBaseline(samples) {
+  const avg = (k) => samples.reduce((s, f) => s + f[k], 0) / samples.length;
+  return {
+    version: 'v1',
+    earShoulderOffsetRatio: avg('earShoulderOffsetRatio'),
+    earShoulderVerticalRatio: avg('earShoulderVerticalRatio'),
+    shoulderToFaceWidthRatio: avg('shoulderToFaceWidthRatio'),
+    shoulderTiltRatio: avg('shoulderTiltRatio'),
+    sampleCount: samples.length,
+  };
+}
+
+// ── 상태 ────────────────────────────────────────────────────────────────────
+let landmarker = null;
+let latestFeatures = null;
+let sendTimer = null;
+const featureLog = []; // JUnit 픽스처로 내보낼 기록
+
+const api = async (method, path, body) => {
+  const res = await fetch(path, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const text = await res.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch { /* 본문이 JSON이 아닐 수 있다 */ }
+  if (!res.ok) throw new Error(`${method} ${path} → ${res.status} ${text}`);
+  return json;
+};
+
+// ── 카메라 + MediaPipe ──────────────────────────────────────────────────────
+async function startCamera() {
+  $('camBtn').disabled = true;
+  log('MediaPipe 로딩 중…');
+  const vision = await FilesetResolver.forVisionTasks(
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+  landmarker = await PoseLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task',
+      delegate: 'GPU',
+    },
+    runningMode: 'VIDEO',
+    numPoses: 1,
+  });
+  log('MediaPipe 준비 완료.');
+
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+  const cam = $('cam');
+  cam.srcObject = stream;
+  await cam.play();
+
+  $('calibBtn').disabled = false;
+  $('startBtn').disabled = false;
+  log('카메라 시작. 바른 자세로 앉은 뒤 ②를 누르세요.');
+  requestAnimationFrame(loop);
+}
+
+const ctx = $('overlay').getContext('2d');
+
+function loop() {
+  const cam = $('cam');
+  if (landmarker && cam.readyState >= 2) {
+    const r = landmarker.detectForVideo(cam, performance.now());
+    ctx.clearRect(0, 0, 480, 360);
+    if (r.landmarks?.length) {
+      const lm = r.landmarks[0];
+      drawPoints(lm);
+      latestFeatures = extractFeatures(lm, cam.videoWidth, cam.videoHeight);
+      renderFeatures(latestFeatures);
+    } else {
+      latestFeatures = null;
+      $('feat').textContent = '사람이 감지되지 않음';
+    }
+  }
+  requestAnimationFrame(loop);
+}
+
+function drawPoints(lm) {
+  ctx.fillStyle = '#22d3ee';
+  for (const i of [NOSE, L_EAR, R_EAR, L_SHOULDER, R_SHOULDER]) {
+    ctx.beginPath();
+    ctx.arc(lm[i].x * 480, lm[i].y * 360, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.strokeStyle = '#22d3ee';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(lm[L_SHOULDER].x * 480, lm[L_SHOULDER].y * 360);
+  ctx.lineTo(lm[R_SHOULDER].x * 480, lm[R_SHOULDER].y * 360);
+  ctx.stroke();
+}
+
+function renderFeatures(f) {
+  if (!f) return;
+  const line = ([k, v]) => `${k.padEnd(26, ' ')} = ${v.toFixed(3)}`;
+  // mlFeatures는 중첩 객체라 toFixed가 없다. 숫자 필드만 먼저 찍고 블록은 아래에 따로 붙인다.
+  const rows = Object.entries(f)
+    .filter(([k, v]) => k !== 'capturedAtMillis' && typeof v === 'number')
+    .map(line);
+
+  rows.push('', f.mlFeatures ? '[mlFeatures] 학습 모델 전용' : '[mlFeatures] 없음 → 규칙 기반으로 판정');
+  if (f.mlFeatures) rows.push(...Object.entries(f.mlFeatures).map(line));
+
+  $('feat').innerHTML = rows.join('<br>').replace(/ /g, '&nbsp;');
+}
+
+// ── ② 캘리브레이션 ──────────────────────────────────────────────────────────
+async function calibrate() {
+  const seconds = Number($('calibSec').value) || 5;
+  const memberId = Number($('memberId').value);
+  $('calibBtn').disabled = true;
+  log(`바른 자세 유지 — ${seconds}초 수집 시작`);
+
+  const samples = [];
+  const started = Date.now();
+  await new Promise((resolve) => {
+    const t = setInterval(() => {
+      if (latestFeatures) samples.push(latestFeatures);
+      if (Date.now() - started >= seconds * 1000) { clearInterval(t); resolve(); }
+    }, 100);
+  });
+
+  if (samples.length < 5) {
+    log('❌ 수집 표본이 너무 적습니다. 카메라에 상반신이 보이는지 확인하세요.');
+    $('calibBtn').disabled = false;
+    return;
+  }
+
+  const baseline = averageBaseline(samples);
+  log(`수집 ${samples.length}프레임 → 기준선: ${JSON.stringify(baseline)}`);
+  try {
+    const saved = await api('POST', '/api/v1/members/me/calibration', {
+      memberId, baseline, confidence: 90.0, captureUrl: null,
+    });
+    log(`✅ 캘리브레이션 저장 완료: ${JSON.stringify(saved)}`);
+  } catch (e) {
+    log(`❌ ${e.message}`);
+  }
+  $('calibBtn').disabled = false;
+}
+
+// ── ③ 1Hz 판정 루프 ────────────────────────────────────────────────────────
+function start() {
+  const sessionId = Number($('sessionId').value);
+  $('startBtn').disabled = true;
+  $('stopBtn').disabled = false;
+  log(`판정 시작 → POST /api/v1/study-sessions/${sessionId}/posture-frames (1초 주기)`);
+
+  // 같은 에러가 초당 한 번씩 무한히 쌓이면 로그에서 진짜 원인을 찾을 수 없다. 연속 3회면 멈춘다.
+  let consecutiveErrors = 0;
+
+  sendTimer = setInterval(async () => {
+    if (!latestFeatures) return;
+    const features = latestFeatures;
+    try {
+      const res = await api('POST', `/api/v1/study-sessions/${sessionId}/posture-frames`, { features });
+      consecutiveErrors = 0;
+      featureLog.push({ features, response: res });
+      renderJudgements(res);
+    } catch (e) {
+      log(`❌ ${e.message}`);
+      if (++consecutiveErrors >= 3) {
+        log('⛔ 연속 3회 실패 — 자동 정지. 원인을 고친 뒤 다시 시작하세요.');
+        stop();
+      }
+    }
+  }, 1000);
+}
+
+function stop() {
+  clearInterval(sendTimer);
+  sendTimer = null;
+  $('startBtn').disabled = false;
+  $('stopBtn').disabled = true;
+  log('판정 정지.');
+}
+
+function renderJudgements(res) {
+  $('judge').innerHTML = res.judgements.map((j) => {
+    const cls = j.skipReason ? 'sev-skip' : (j.severity > 0 ? 'sev-bad' : 'sev0');
+    return `<tr class="${cls}"><td>${j.type}</td><td>${j.severity ?? '-'}</td>`
+         + `<td>${j.deviationDegrees ?? '-'}</td><td>${j.skipReason ?? ''}</td></tr>`;
+  }).join('');
+
+  const parts = [`goodPosture: ${res.goodPosture}`];
+  if (res.confirmed.length) parts.push(`🔴 확정(이벤트 저장됨): ${res.confirmed.join(', ')}`);
+  if (res.resolved.length) parts.push(`🟢 해소: ${res.resolved.join(', ')}`);
+  $('conf').textContent = parts.join(' | ');
+
+  if (res.confirmed.length) log(`🔴 confirmed: ${res.confirmed.join(', ')}`);
+  if (res.resolved.length) log(`🟢 resolved: ${res.resolved.join(', ')}`);
+}
+
+// ── ④ 세션 종료 → 점수 확인 ────────────────────────────────────────────────
+async function endSession() {
+  const sessionId = Number($('sessionId').value);
+  if (sendTimer) stop();
+  try {
+    const res = await api('PATCH', `/api/v1/study-records/${sessionId}/end`, {
+      focusedSeconds: 600, breakSeconds: 0, awaySeconds: 0, endReason: 'COMPLETED',
+    });
+    log(`✅ 종료 · 점수: ${JSON.stringify(res, null, 2)}`);
+  } catch (e) {
+    log(`❌ ${e.message}`);
+  }
+}
+
+/** 이번 세션의 피처+응답을 파일로 떨군다. JUnit 픽스처로 재생하면 웹캠 없이 회귀 테스트가 된다. */
+function dump() {
+  const blob = new Blob([JSON.stringify(featureLog, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `posture-features-${featureLog.length}.json`;
+  a.click();
+  log(`피처 ${featureLog.length}건 저장.`);
+}
+
+$('camBtn').onclick = () => startCamera().catch((e) => { log(`❌ ${e.message}`); $('camBtn').disabled = false; });
+$('calibBtn').onclick = calibrate;
+$('startBtn').onclick = start;
+$('stopBtn').onclick = stop;
+$('endBtn').onclick = endSession;
+$('dumpBtn').onclick = dump;
+$('calibGetBtn').onclick = async () => {
+  try { log(`기준선: ${JSON.stringify(await api('GET', `/api/v1/members/me/calibration?memberId=${$('memberId').value}`))}`); }
+  catch (e) { log(`❌ ${e.message}`); }
+};
+$('calibDelBtn').onclick = async () => {
+  try { log(JSON.stringify(await api('DELETE', `/api/v1/members/me/calibration?memberId=${$('memberId').value}`))); }
+  catch (e) { log(`❌ ${e.message}`); }
+};
+</script>
+</body>
+</html>

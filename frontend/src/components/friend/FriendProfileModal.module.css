@@ -1,0 +1,187 @@
+/* 친구 프로필 카드. 친구 찾기 창과 같은 껍데기(배경·모서리·그림자)를 쓴다 */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--gak-z-modal);
+
+  display: grid;
+  place-items: center;
+  padding: var(--gak-space-4);
+  background: var(--gak-overlay);
+}
+
+.dialog {
+  position: relative;
+  box-sizing: border-box;
+  width: 340px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-5);
+  padding: var(--gak-space-5);
+
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  box-shadow: var(--gak-shadow-md);
+}
+
+.close-btn {
+  position: absolute;
+  top: var(--gak-space-3);
+  right: var(--gak-space-3);
+
+  width: 28px;
+  height: 28px;
+  /* 여백·줄높이를 지우는 이유는 DmWindow.module.css 의 .icon-btn 주석과 같다 */
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: var(--gak-radius-sm);
+  background: none;
+  color: var(--gak-text-muted);
+  font-size: var(--gak-fs-base);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background: var(--gak-surface-alt);
+  color: var(--gak-text);
+}
+
+/* ── 신원 ── */
+.identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-2);
+  /* 닫기 버튼과 겹치지 않게 위를 조금 비운다 */
+  padding-top: var(--gak-space-2);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  border: 1px solid var(--gak-primary);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+  font-size: var(--gak-fs-xl);
+  font-weight: var(--gak-fw-bold);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.name {
+  margin: 0;
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+/*
+ * 가입일. 조회 전에는 빈 문자열이 들어오는데, 높이를 미리 잡아 두어야 값이 도착할 때
+ * 아래 내용이 밀리지 않는다.
+ */
+.joined {
+  margin: 0;
+  min-height: 18px;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+
+/* ── 학습 요약 3박스 ── */
+.stats {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gak-space-2);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-1);
+  padding: var(--gak-space-3) var(--gak-space-2);
+
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface-alt);
+  text-align: center;
+}
+
+.stat dt {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-secondary);
+}
+
+.stat dd {
+  margin: 0;
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  white-space: nowrap;
+}
+
+.error {
+  margin: 0;
+  padding: var(--gak-space-3);
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-surface-alt);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-status-danger);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── 동작 ── */
+.actions {
+  display: flex;
+  gap: var(--gak-space-2);
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gak-space-2);
+  padding: 10px;
+
+  border: 1px solid transparent;
+  border-radius: var(--gak-radius-sm);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+}
+
+.action-btn[data-variant='primary'] {
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.action-btn[data-variant='primary']:hover {
+  background: var(--gak-primary-hover);
+}
+
+/* 삭제는 되돌릴 수 없다. 기본 상태에서는 조용히 두고 마우스를 올렸을 때만 경고색을 쓴다 */
+.action-btn[data-variant='danger'] {
+  border-color: var(--gak-border);
+  background: none;
+  color: var(--gak-text-secondary);
+}
+
+.action-btn[data-variant='danger']:hover {
+  border-color: var(--gak-status-danger);
+  color: var(--gak-status-danger);
+}

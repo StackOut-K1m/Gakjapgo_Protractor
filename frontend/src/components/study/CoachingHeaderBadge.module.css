@@ -1,0 +1,41 @@
+.header-badge {
+  margin: 0;
+  padding: var(--gak-space-2) var(--gak-space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-text-secondary);
+  white-space: nowrap;
+  transition:
+    color var(--gak-transition-base),
+    border-color var(--gak-transition-base),
+    background-color var(--gak-transition-base);
+}
+
+.header-badge[data-active='true'] {
+  border: 1px dashed var(--gak-status-danger);
+  background: rgba(240, 70, 82, 0.10);
+  color: var(--gak-status-danger);
+}
+
+/* 부위별 카운트. 경고가 없는 부위는 배지가 붉어져도 차분하게 남겨서,
+   지금 쌓이고 있는 부위가 어느 것인지 훑어봐도 구분되게 한다 */
+.part-count {
+  color: var(--gak-text-secondary);
+}
+
+.part-count[data-hit='true'] {
+  color: var(--gak-status-danger);
+}
+@media (max-width: 900px) {
+  .header-badge {
+    white-space: normal;
+    word-break: keep-all;
+  }
+}

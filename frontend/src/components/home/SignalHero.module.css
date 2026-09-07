@@ -1,0 +1,451 @@
+/*
+ * 문구는 왼쪽, 신호등 덩어리는 오른쪽. 둘을 나란히 두는 이유는 세로로 쌓았을 때
+ * 오른쪽 위가 통째로 비고 신호등이 화면 한참 아래로 내려갔기 때문이다.
+ */
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 48px;
+  padding: 56px 40px 72px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/*
+ * 설명 카드가 위, 신호등이 아래. 이 덩어리가 문구 오른쪽에 나란히 선다.
+ *
+ * 폭을 못 박아 둔다. 안 그러면 내용에 따라 폭이 정해지는데, 안내 한 줄일 때와 설명 카드가
+ * 떴을 때의 폭이 100px 넘게 차이 난다(458 ↔ 560). 가운데 정렬이라 그만큼 신호등이 옆으로
+ * 밀리고, 커서가 등에서 벗어나 → 카드가 닫히고 → 등이 되돌아와 커서 밑으로 → 다시 열리고
+ * 를 반복해 신호등이 부르르 떨렸다.
+ */
+.signal-row {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  width: 560px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* ── 문구 ─────────────────────────────────── */
+
+.copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  /* 남는 폭은 문구가 가져간다. 신호등 덩어리는 자기 크기를 지킨다 */
+  flex: 1 1 400px;
+  max-width: 520px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 62px;
+  line-height: 1.05;
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.035em;
+  text-wrap: pretty;
+}
+
+.lead {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.66);
+  text-wrap: pretty;
+}
+
+.lead strong {
+  font-weight: var(--gak-fw-bold);
+}
+.lead strong[data-signal='red'] {
+  color: var(--gak-status-danger);
+}
+.lead strong[data-signal='yellow'] {
+  color: var(--gak-status-warning);
+}
+.lead strong[data-signal='green'] {
+  color: var(--gak-accent);
+}
+
+.cta-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.cta-primary,
+.cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: 15px 26px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+/* 첫 버튼만 밝은 면으로 채운다 — 이 화면에서 가장 눌렸으면 하는 하나다 */
+.cta-primary {
+  border: 0;
+  background: var(--gak-text);
+  color: #14171a;
+  font-weight: var(--gak-fw-bold);
+}
+
+.cta-primary:hover {
+  background: #fff;
+}
+
+.cta-ghost {
+  background: transparent;
+  color: var(--gak-text);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: var(--gak-fw-medium);
+}
+
+.cta-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.38);
+}
+
+.metrics {
+  display: flex;
+  gap: 28px;
+  padding-top: 14px;
+  margin-top: 8px;
+  border-top: 1px solid var(--gak-border-soft);
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metric-value {
+  font-family: var(--gak-font-num);
+  font-size: 26px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.metric-label {
+  font-size: 12.5px;
+  color: var(--gak-text-secondary);
+}
+
+/* ── 신호등 ───────────────────────────────── */
+
+.lamp-column {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+/* 가로로 누운 등집. 세 등이 한 줄로 선다 */
+.lamp-box {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 26px;
+  background: linear-gradient(160deg, #3b4453, #232a33);
+  border: 1px solid var(--gak-border);
+  box-shadow:
+    0 40px 80px -30px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/*
+ * 등 하나.
+ *
+ * 꺼짐/켜짐 색과 후광을 --off/--on/--glow 로 받아 세 등이 같은 규칙을 공유한다.
+ * 후광은 ::after 로 따로 깔아 두고 투명도만 바꾼다 — box-shadow 를 켜고 끄면
+ * 전환이 끊긴다.
+ */
+/* 세로로 세웠을 때보다 작다 — 셋이 가로로 서면 그 폭만큼 문구 자리를 밀기 때문이다 */
+.lamp {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  padding: 0;
+  border-radius: 50%;
+  border: 5px solid #1b2028;
+  background: var(--off);
+  cursor: pointer;
+  isolation: isolate;
+  transition: background-color 0.28s;
+}
+
+.lamp[data-signal='red'] {
+  --off: #3a0f14;
+  --on: #f04652;
+  --glow: rgba(240, 70, 82, 0.55);
+}
+.lamp[data-signal='yellow'] {
+  --off: #3d3410;
+  --on: #ffca3a;
+  --glow: rgba(255, 202, 58, 0.5);
+}
+.lamp[data-signal='green'] {
+  --off: #2b3d0c;
+  --on: #8ac926;
+  --glow: rgba(138, 201, 38, 0.5);
+}
+
+.lamp[data-on='true'] {
+  background: var(--on);
+}
+
+/* 바깥으로 번지는 빛 */
+.lamp::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  box-shadow: 0 0 70px 6px var(--glow);
+  opacity: 0;
+  transition: opacity 0.28s;
+  pointer-events: none;
+}
+
+.lamp[data-on='true']::after {
+  opacity: 1;
+}
+
+.lamp:focus-visible {
+  outline: 2px solid var(--gak-accent);
+  outline-offset: 4px;
+}
+
+.lamp-pole {
+  width: 28px;
+  height: 72px;
+  background: linear-gradient(90deg, #2a313b, #3b4453 45%, #232a33);
+  border-radius: 0 0 4px 4px;
+}
+
+.lamp-base {
+  width: 108px;
+  height: 12px;
+  border-radius: 6px;
+  background: #232a33;
+}
+
+/* ── 신호 설명 카드 ───────────────────────── */
+
+/*
+ * 신호등 바로 위 자리.
+ *
+ * 높이를 미리 잡아 둔다(min-height). 안내 한 줄과 설명 카드는 높이가 세 배 넘게 차이 나서,
+ * 그냥 두면 등에 마우스를 올릴 때마다 신호등이 아래로 밀려 내려갔다 올라온다.
+ * 고르기 전에는 아무것도 그리지 않고 자리만 비워 둔다.
+ *
+ * 내용은 아래쪽에 붙인다 — 카드가 신호등에 가깝게 앉아야 둘이 한 덩어리로 읽힌다.
+ */
+.detail {
+  position: relative;
+  z-index: 1;
+  /* 폭은 위 .signal-row 가 정한다 — 여기서 따로 정하면 내용에 따라 흔들린다 */
+  width: 100%;
+  min-height: 240px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.detail-card {
+  width: 100%;
+  border-radius: var(--gak-radius-xl);
+  background: var(--gak-surface);
+  border: 1px solid var(--gak-border);
+  overflow: hidden;
+  animation: detail-in 0.3s ease both;
+}
+
+@keyframes detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-card {
+    animation: none;
+  }
+}
+
+.detail-stripe {
+  display: block;
+  height: 5px;
+}
+
+.detail-card[data-signal='red'] .detail-stripe {
+  background: #f04652;
+}
+.detail-card[data-signal='yellow'] .detail-stripe {
+  background: #ffca3a;
+}
+.detail-card[data-signal='green'] .detail-stripe {
+  background: #8ac926;
+}
+
+.detail-body {
+  padding: 22px 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-code {
+  font-family: var(--gak-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--gak-text-muted);
+}
+
+.detail-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.02em;
+}
+
+.detail-desc {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--gak-text-secondary);
+  text-wrap: pretty;
+}
+
+/* ── 배경 각도기 ──────────────────────────── */
+
+/*
+ * 히어로 뒤에 깔리는 각도기와 그 안쪽 경고등.
+ *
+ * 두 겹이 같은 자리를 잡아야 경고등이 각도기 눈금 안에 앉는다 — 위치 값을 한 곳에서
+ * 쓰도록 공통 규칙으로 묶어 둔다.
+ */
+.protractor,
+.telltales {
+  position: absolute;
+  left: 50%;
+  top: 214px;
+  width: 760px;
+  height: 470px;
+  transform: translateX(-72%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.protractor {
+  opacity: 0.42;
+  transition: opacity 0.35s;
+}
+
+/*
+ * 신호를 고르면 판이 또렷해진다.
+ *
+ * 멋내기가 아니라 필요해서다 — 빨강 암(#f04652)은 42% 로 깔면 배경에 묻혀 각도가 안 보인다.
+ * 고른 순간에만 올려서, 평소에는 배경으로 물러나고 볼 때는 읽히게 한다.
+ */
+.protractor[data-active='true'] {
+  opacity: 0.78;
+}
+
+/* 각도가 바뀌면 미끄러지듯 돈다. 뚝 끊기면 '재는 도구'가 아니라 그림처럼 보인다 */
+.protractor-arm {
+  transition:
+    transform 0.55s cubic-bezier(0.2, 0.9, 0.2, 1),
+    opacity 0.45s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .protractor-arm {
+    transition: none;
+  }
+}
+
+.telltale {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  transition:
+    opacity 0.45s,
+    color 0.45s,
+    filter 0.45s;
+}
+
+.telltale-label {
+  font-family: var(--gak-font-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+}
+
+/* ── 좁은 화면 ────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .hero {
+    gap: 32px;
+    padding: 48px 24px 64px;
+  }
+  .hero {
+    justify-content: center;
+  }
+  .signal-row {
+    gap: 20px;
+  }
+  .title {
+    font-size: 46px;
+  }
+  /* 각도기는 감춘다 — 좁아지면 눈금이 문구와 겹쳐 둘 다 안 읽힌다 */
+  .protractor,
+  .telltales {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .title {
+    font-size: 36px;
+  }
+  /* 셋이 가로로 서니 폭이 먼저 모자란다. 등을 줄이고 간격도 좁힌다 */
+  .lamp {
+    width: 88px;
+    height: 88px;
+    border-width: 4px;
+  }
+  .lamp-box {
+    gap: 10px;
+    padding: 12px;
+    border-radius: 20px;
+  }
+}

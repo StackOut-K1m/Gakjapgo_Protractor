@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="내 방">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#6d28d9"/>
+      <stop offset="1" stop-color="#312e81"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e1b4b"/>
+      <stop offset="1" stop-color="#4c1d95"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="360" fill="url(#bg)"/>
+
+  <!-- 창밖 밤하늘 -->
+  <rect x="420" y="44" width="180" height="150" rx="10" fill="url(#sky)"/>
+  <circle cx="566" cy="84" r="20" fill="#fef9c3" opacity="0.9"/>
+  <circle cx="558" cy="78" r="18" fill="#312e81" opacity="0.85"/>
+  <g fill="#fef9c3" opacity="0.8">
+    <circle cx="452" cy="78" r="3"/>
+    <circle cx="486" cy="110" r="2.5"/>
+    <circle cx="444" cy="146" r="2.5"/>
+    <circle cx="514" cy="70" r="2"/>
+    <circle cx="530" cy="150" r="3"/>
+  </g>
+  <rect x="420" y="44" width="180" height="150" rx="10" fill="none" stroke="#c4b5fd" stroke-width="5" opacity="0.6"/>
+  <line x1="510" y1="44" x2="510" y2="194" stroke="#c4b5fd" stroke-width="5" opacity="0.6"/>
+
+  <!-- 책상 -->
+  <rect x="0" y="254" width="640" height="106" fill="#2e1065"/>
+  <rect x="0" y="248" width="640" height="12" rx="6" fill="#a78bfa"/>
+
+  <!-- 화분 -->
+  <path d="M116 214 c-24 -6 -34 -30 -22 -48 20 4 30 26 22 48z" fill="#4ade80" opacity="0.9"/>
+  <path d="M124 214 c22 -10 26 -36 12 -50 -18 8 -22 32 -12 50z" fill="#22c55e" opacity="0.9"/>
+  <path d="M100 214 h44 l-7 34 h-30 z" fill="#f472b6"/>
+
+  <!-- 머그컵 -->
+  <path d="M196 220 h54 v18 a14 14 0 0 1 -14 14 h-26 a14 14 0 0 1 -14 -14 z" fill="#fdf4ff"/>
+  <path d="M250 226 h9 a11 11 0 0 1 0 22 h-9" fill="none" stroke="#fdf4ff" stroke-width="8"/>
+
+  <!-- 노트북 -->
+  <path d="M296 186 h140 v62 h-140 z" fill="#ede9fe"/>
+  <rect x="308" y="198" width="116" height="38" fill="#5b21b6" opacity="0.6"/>
+  <path d="M286 248 h160 l12 12 h-184 z" fill="#c4b5fd"/>
+
+</svg>

@@ -1,0 +1,101 @@
+.card {
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-xl);
+  background: var(--gak-surface);
+  padding: 24px 26px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-4);
+}
+
+.title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.02em;
+}
+
+.state {
+  margin: 0;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text-secondary);
+}
+
+.state[data-error='true'] {
+  color: var(--gak-status-danger);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-4);
+  padding: var(--gak-space-3) var(--gak-space-4);
+  border: 1px solid var(--gak-border-soft);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-bg-muted);
+}
+
+.row-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* flex 자식이 내용보다 작아지도록 풀어 줘야 아래 ellipsis 가 실제로 걸린다 */
+  min-width: 0;
+  font-family: var(--gak-font-mono);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text);
+}
+
+.row-subtitle {
+  font-family: var(--gak-font-body);
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+  flex-shrink: 0;
+}
+
+.row-status {
+  font-family: var(--gak-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--gak-text-muted);
+}
+
+.row-download {
+  padding: 8px 14px;
+  border: 1px solid var(--gak-accent);
+  border-radius: var(--gak-radius-md);
+  background: transparent;
+  color: var(--gak-accent);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast);
+}
+
+.row-download:hover:not(:disabled) {
+  background: var(--gak-primary-light);
+}
+
+.row-download:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}

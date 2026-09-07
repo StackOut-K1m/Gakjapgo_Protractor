@@ -1,0 +1,304 @@
+/*
+ * DM 창. 화면 오른쪽 아래에 뜬다.
+ *
+ * 친구 패널이 펼쳐져 있으면(data-shifted) 그 폭(300px)만큼 왼쪽으로 옮긴다. 안 옮기면
+ * 패널 아래에 가려서 대화가 보이지 않는다. 접힌 상태에서는 우하단 원형 버튼 위에 놓인다.
+ */
+.window {
+  position: fixed;
+  right: var(--gak-content-padding);
+  bottom: 88px;
+  z-index: var(--gak-z-dock);
+
+  box-sizing: border-box;
+  width: 340px;
+  height: 440px;
+  max-height: calc(100vh - var(--gak-header-height) - 48px);
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  box-shadow: var(--gak-shadow-md);
+  overflow: hidden;
+}
+
+.window[data-shifted='true'] {
+  right: calc(300px + var(--gak-space-4));
+  /* 패널이 열려 있으면 원형 버튼이 없으므로 더 아래까지 쓸 수 있다 */
+  bottom: var(--gak-content-padding);
+}
+
+/* ── 머리 ── */
+.header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gak-border);
+}
+
+.avatar {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+/*
+ * padding: 0 · line-height: 1 이 둘 다 필요하다.
+ *
+ * 브라우저 기본 버튼 여백(1px 6px)을 지우지 않으면 안쪽 칸이 24px 이 아니라 12x22 가 되고,
+ * 글자가 그 안에서 가운데를 잡아 회색 배경과 어긋난다. line-height 도 body 값(1.5)을 그대로
+ * 쓰면 글자 상자가 폰트의 위/아래 여백만큼 1px 가량 아래로 내려간다.
+ */
+.icon-btn {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: var(--gak-radius-sm);
+  background: none;
+  color: var(--gak-text-secondary);
+  font-size: var(--gak-fs-sm);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: var(--gak-surface-alt);
+  color: var(--gak-text);
+}
+
+/* ── 대화 ── */
+.messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 12px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  max-width: 80%;
+}
+
+/* 내 말은 오른쪽에 붙인다. 이름을 적지 않아도 누가 썼는지 드러난다 */
+.message[data-self='true'] {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+/* 서버 확인 전에는 옅게 — 전송이 끝나면 흐림이 풀린다 */
+.message[data-pending='true'] {
+  opacity: 0.6;
+}
+
+.bubble {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface-alt);
+  color: var(--gak-text);
+  font-size: var(--gak-fs-sm);
+  line-height: 1.5;
+  /* 긴 주소가 창을 밀어내지 않게 끊어 준다 */
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.message[data-self='true'] .bubble {
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.time {
+  font-size: 11px;
+  color: var(--gak-text-muted);
+}
+
+.empty {
+  margin: auto 0;
+  align-self: center;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+
+.older-btn {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-sm);
+  background: none;
+  font-family: inherit;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+}
+
+.older-btn:hover {
+  background: var(--gak-surface-alt);
+}
+
+.error {
+  flex: none;
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--gak-surface-alt);
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-status-danger);
+  line-height: 1.5;
+}
+
+/* ── 입력 ── */
+.form {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: 10px 12px;
+  border-top: 1px solid var(--gak-border);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-sm);
+  outline: none;
+  font-family: inherit;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text);
+}
+
+.input:focus {
+  border-color: var(--gak-primary);
+}
+
+.input::placeholder {
+  color: var(--gak-text-muted);
+}
+
+/* 브라우저 기본 여백(1px 6px)을 지운다 — 아이콘이 초록 사각형의 정중앙에 놓인다 */
+.send-btn {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  cursor: pointer;
+}
+
+.send-btn:hover {
+  background: var(--gak-primary-hover);
+}
+
+.send-btn:disabled {
+  background: var(--gak-border);
+  color: var(--gak-text-muted);
+  cursor: default;
+}
+
+/* ── 최소화 ── */
+.minimized {
+  position: fixed;
+  right: var(--gak-content-padding);
+  bottom: 88px;
+  z-index: var(--gak-z-dock);
+
+  box-sizing: border-box;
+  width: 220px;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-1);
+  padding: 6px 8px;
+
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-surface);
+  box-shadow: var(--gak-shadow-md);
+}
+
+.minimized[data-shifted='true'] {
+  right: calc(300px + var(--gak-space-4));
+  bottom: var(--gak-content-padding);
+}
+
+.minimized-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: 4px;
+
+  border: none;
+  border-radius: var(--gak-radius-full);
+  background: none;
+  color: var(--gak-primary);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.minimized-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  text-align: left;
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}

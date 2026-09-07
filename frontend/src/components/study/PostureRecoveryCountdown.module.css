@@ -1,0 +1,10 @@
+/* 남은 시간 숫자만 강조한다. 문구의 자리·크기·색은 대신 들어간 안내 문구
+   (CoachingStage 의 stage-caption 등)에서 그대로 물려받는다 — 이 컴포넌트는
+   새 배너가 아니라 기존 한 줄을 바꿔 끼우는 것이기 때문이다. */
+
+/* 폭이 고정돼야 0.1 초마다 숫자가 바뀌어도 문구가 좌우로 흔들리지 않는다 */
+.recovery-seconds {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-status-ok);
+}

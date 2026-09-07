@@ -1,0 +1,23 @@
+{
+  "_comment": "PostureDetectorWiringTest 전용 픽스처. 빈 등록과 판정기 선택만 검증하므로 계수는 아무 값이어도 된다. 프로덕션 모델(main/resources/models/*.json)을 쓰면 재학습으로 피처가 바뀌는 동안 배선 테스트까지 같이 멈춰서 따로 둔다. 피처 목록은 PostureMlFeatures.valueOf 가 아는 이름과 같아야 한다.",
+  "feature_order": [
+    "eye_dist_ratio",
+    "ear_dist_ratio",
+    "nose_above_shoulder",
+    "ear_above_shoulder",
+    "nose_z_rel",
+    "ear_z_rel",
+    "acromion_proxy",
+    "head_roll",
+    "shoulder_tilt",
+    "abs_shoulder_tilt",
+    "abs_head_roll",
+    "shoulder_z_spread"
+  ],
+  "mean": [0.19, 0.35, 0.55, 0.60, -1.35, -0.40, 0.72, 0.0, 0.0, 0.03, 0.05, 0.04],
+  "std": [0.02, 0.03, 0.08, 0.07, 0.15, 0.10, 0.09, 0.05, 0.04, 0.02, 0.03, 0.02],
+  "coef": [0.1, 0.2, -1.5, -0.8, 0.9, 1.2, 0.7, 0.0, 0.0, 0.3, 0.2, 0.1],
+  "intercept": -0.5,
+  "threshold": 0.5,
+  "levels": { "warning": 0.4, "severe": 0.7 }
+}

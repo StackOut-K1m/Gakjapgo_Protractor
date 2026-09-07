@@ -1,0 +1,83 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--gak-z-modal, 1000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gak-space-4);
+  background: rgb(0 0 0 / 45%);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--gak-space-5);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  box-shadow: var(--gak-shadow-md);
+}
+
+.title {
+  margin: 0 0 var(--gak-space-3);
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.body {
+  margin: 0;
+  font-size: var(--gak-fs-base);
+  line-height: 1.7;
+  color: var(--gak-text-secondary);
+  word-break: keep-all;
+}
+
+.note {
+  margin: var(--gak-space-3) 0 0;
+  padding: var(--gak-space-3);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-bg);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+  word-break: keep-all;
+}
+
+.actions {
+  margin-top: var(--gak-space-5);
+  display: flex;
+  gap: var(--gak-space-2);
+}
+
+.cancel-btn,
+.submit-btn {
+  flex: 1;
+  padding: var(--gak-space-3);
+  border-radius: var(--gak-radius-md);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast);
+}
+
+.cancel-btn {
+  border: 1px solid var(--gak-border);
+  background: var(--gak-surface);
+  color: var(--gak-text-secondary);
+}
+
+.cancel-btn:hover {
+  background: var(--gak-bg);
+}
+
+.submit-btn {
+  border: 1px solid var(--gak-primary);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.submit-btn:hover {
+  border-color: var(--gak-primary-hover);
+  background: var(--gak-primary-hover);
+}

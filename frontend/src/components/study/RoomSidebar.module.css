@@ -1,0 +1,383 @@
+/* 창이 좁아지면 영상 영역이 아니라 이쪽이 먼저 양보한다.
+   예전에는 flex-shrink: 0 이라 사이드바가 360px 를 끝까지 붙들었고, 그 탓에 창을 줄이면
+   내 모습이 나오는 영역만 0 까지 밀려 사라졌다. max-width 로 상한을 비율로 묶어 두면
+   영상 영역이 항상 60% 는 남는다 — 좁아질수록 사이드바가 옆으로 작아질 뿐이다. */
+.room-sidebar {
+  width: var(--gak-sidebar-width);
+  max-width: 40%;
+  flex-shrink: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--gak-border);
+  background: var(--gak-surface);
+}
+
+/* 접힌 상태. 창을 좁히면 자동으로, 컨트롤바 버튼으로도 접힌다.
+   지우지 않고 감추기만 하는 이유는 다시 펼칠 때 메시지 DOM 을 새로 만들지 않기 위해서다
+   — 이 화면은 자세 추론이 메인 스레드를 쓰고 있어서 그 비용이 끊김으로 보인다. */
+.room-sidebar[data-open='false'] {
+  display: none;
+}
+
+.sidebar-tabs {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--gak-border);
+}
+
+.sidebar-tab {
+  flex: 1;
+  padding: var(--gak-space-4) var(--gak-space-3);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-medium);
+  color: var(--gak-text-muted);
+  cursor: pointer;
+  transition:
+    color var(--gak-transition-fast),
+    border-color var(--gak-transition-fast);
+}
+
+.sidebar-tab[data-active='true'] {
+  border-bottom-color: var(--gak-text);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+/* 탭을 바꿔도 DOM 을 지우지 않고 숨기기만 한다.
+   display 를 지정한 요소는 hidden 속성만으로는 안 감춰지므로 여기서 눌러 준다. */
+.room-sidebar [hidden] {
+  display: none;
+}
+
+/* 채팅 패널. 목록이 남는 공간을 차지하고 입력창이 아래에 붙는다. */
+.sidebar-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-state {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+}
+
+/* ── 채팅 ── */
+.message-list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: var(--gak-space-4);
+  display: flex;
+  flex-direction: column;
+  /* 덩어리 안쪽 간격. 덩어리 사이는 아래에서 margin 으로 더 벌린다. */
+  gap: var(--gak-space-2);
+  list-style: none;
+  overflow-y: auto;
+}
+
+/* 말풍선 한 덩어리. 사이드바가 좁아서 폭을 다 쓰면 좌우 구분이 안 보이므로
+   85% 로 묶어 반대쪽에 여백을 남긴다. 그 여백이 "누가 썼는지"의 신호다. */
+.message-item {
+  max-width: 85%;
+  align-self: flex-start;
+  display: flex;
+  /* 프로필 사진이 왼쪽, 이름·시각·말풍선이 오른쪽에 세로로 쌓인다 */
+  align-items: flex-start;
+  gap: var(--gak-space-2);
+}
+
+.message-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+}
+
+.message-item[data-self='true'] .message-content {
+  align-items: flex-end;
+}
+
+/* 채팅 속 프로필 사진. 서버가 방 이벤트에 사진 주소를 실어 주지 않아 첫 글자로 대신한다. */
+.message-avatar,
+.message-avatar-spacer {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.message-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  font-family: inherit;
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-primary);
+  cursor: pointer;
+  transition: box-shadow var(--gak-transition-fast);
+  /* 사진이 들어오면 동그란 테두리 밖으로 넘치지 않게 자른다 */
+  overflow: hidden;
+  padding: 0;
+}
+
+/* 세로/가로 사진이 찌그러지지 않게 채운 뒤 넘치는 쪽을 자른다 */
+.message-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.message-avatar:hover {
+  box-shadow: 0 0 0 2px var(--gak-primary);
+}
+
+.message-item[data-self='true'] {
+  align-self: flex-end;
+}
+
+/* 새 덩어리가 시작되는 자리만 벌려 준다. 이 여백이 "말한 사람이 바뀌었다"는 신호라
+   이름을 접어도 대화가 뭉개지지 않는다. 첫 메시지는 목록 padding 으로 이미 떠 있다. */
+.message-item:not([data-grouped='true']):not(:first-child) {
+  margin-top: var(--gak-space-3);
+}
+
+/* 보냈지만 아직 서버 확인이 안 된 메시지. 옅게 두어 "가는 중"임을 알린다.
+   전환을 주지 않으면 확정될 때 색이 툭 바뀌어 오히려 눈에 띈다. */
+.message-item[data-pending='true'] {
+  opacity: 0.55;
+  transition: opacity var(--gak-transition-fast);
+}
+
+.message-meta {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--gak-space-2);
+}
+
+/* 내 메시지는 이름이 빠지고 시각만 남으므로 말풍선 오른쪽 끝에 맞춘다 */
+.message-item[data-self='true'] .message-meta {
+  justify-content: flex-end;
+}
+
+.message-author {
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.message-time {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.message-body {
+  margin: 0;
+  padding: var(--gak-space-3);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-bg);
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+  line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  /* 붙은 쪽 아래 모서리를 죽여 말풍선 꼬리처럼 보이게 한다.
+     radius 토큰은 sm(6px)·md(8px) 차이가 2px 뿐이라 꼬리가 안 보여 여기서만 값을 직접 쓴다. */
+  border-bottom-left-radius: 2px;
+}
+
+/* 본문 속 링크. primary(#2d8c3c)는 초록 말풍선 위에서 대비가 모자라
+   두 배경 모두에서 안전한 primary-hover(#236b2e)를 쓴다. 밑줄도 같이 둬서
+   색만으로 링크를 구분하지 않아도 되게 한다. */
+.message-link {
+  color: var(--gak-primary-hover);
+  text-decoration: underline;
+  /* 사이드바가 좁아 긴 주소가 말풍선을 밀고 나가지 않게 한다 */
+  word-break: break-all;
+}
+
+.message-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* 좌우 정렬만으로도 구분되지만, 색까지 다르면 흘려볼 때 더 빨리 잡힌다.
+   색 하나에만 기대지 않으므로 색 구분이 어려운 경우에도 정렬로 읽을 수 있다. */
+.message-item[data-self='true'] .message-body {
+  background: var(--gak-primary-light);
+  border-bottom-left-radius: var(--gak-radius-md);
+  border-bottom-right-radius: 2px;
+}
+
+.message-form {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: var(--gak-space-3) var(--gak-space-4);
+  border-top: 1px solid var(--gak-border);
+}
+
+.message-input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+  transition: border-color var(--gak-transition-fast);
+}
+
+.message-input::placeholder {
+  color: var(--gak-text-muted);
+}
+
+.message-input:focus {
+  outline: none;
+  border-color: var(--gak-primary);
+}
+
+.message-send-btn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast);
+}
+
+.message-send-btn:hover {
+  background: var(--gak-primary-hover);
+}
+
+/* ── 참여자 ── */
+.participant-list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: var(--gak-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+  list-style: none;
+  overflow-y: auto;
+}
+
+/* 아이템 전체가 메뉴를 여는 버튼이다. 목록의 li 는 자리만 잡고 스타일은 여기서 준다. */
+.participant-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+  padding: var(--gak-space-3);
+  border: none;
+  border-radius: var(--gak-radius-md);
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast);
+}
+
+.participant-item:hover {
+  background: var(--gak-bg);
+}
+
+/* 메뉴가 열려 있는 동안 유지되는 선택 상태. hover 보다 진하게 둬서
+   마우스가 메뉴로 옮겨가도 어느 줄을 눌렀는지 계속 보이게 한다. */
+.participant-item[data-selected='true'] {
+  background: var(--gak-primary-light);
+}
+
+.participant-item[data-selected='true'] .participant-name {
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-primary);
+}
+
+.participant-avatar {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-primary);
+  /* 사진이 들어오면 동그란 테두리 밖으로 넘치지 않게 자른다 */
+  overflow: hidden;
+}
+
+/* 세로/가로 사진이 찌그러지지 않게 채운 뒤 넘치는 쪽을 자른다 */
+.participant-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 선택된 줄은 배경이 이미 연한 초록이라, 아바타가 묻히지 않게 흰 바탕으로 뒤집는다 */
+.participant-item[data-selected='true'] .participant-avatar {
+  background: var(--gak-surface);
+}
+
+/* 아직 안 되는 동작을 눌렀을 때 잠깐 뜨는 안내 */
+.sidebar-notice {
+  flex-shrink: 0;
+  margin: 0;
+  padding: var(--gak-space-3) var(--gak-space-4);
+  border-top: 1px solid var(--gak-border);
+  background: var(--gak-bg);
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-secondary);
+}
+
+.participant-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+}
+
+.participant-sub {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+
+.participant-mic {
+  flex-shrink: 0;
+  display: flex;
+  color: var(--gak-text-secondary);
+}
+
+.participant-mic[data-off='true'] {
+  color: var(--gak-status-danger);
+}

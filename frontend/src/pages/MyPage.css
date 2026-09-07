@@ -1,0 +1,588 @@
+/* 마이페이지 전용 스타일 (Figma my-page-report-section · --gak-* 디자인 토큰) */
+
+.mypage {
+  max-width: var(--gak-content-width);
+  margin: 0 auto;
+  color: var(--gak-text);
+}
+
+.mypage-header {
+  margin-bottom: var(--gak-space-5);
+}
+.mypage-header h1 {
+  margin: 0 0 var(--gak-space-1);
+  font-size: var(--gak-fs-title);
+}
+
+.mypage-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 24px;
+  align-items: start;
+}
+.mypage-main,
+.mypage-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-5);
+}
+
+@media (max-width: 1000px) {
+  .mypage-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── 공통 카드 ─────────────────────────────── */
+.section-card {
+  background: var(--gak-surface);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-xl);
+  padding: 24px 26px 26px;
+  min-width: 0;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-3);
+  /* 폭이 모자라면 제목을 쪼개지 말고 오른쪽 액션을 아랫줄로 내린다 */
+  flex-wrap: wrap;
+  margin-bottom: var(--gak-space-4);
+}
+/* 카드 아래에 놓일 때를 기준으로 margin-top 이 붙어 있다. 제목 줄에서는 그만큼
+   버튼이 내려가 제목과 어긋나므로 없앤다. */
+.section-head .section-actions {
+  margin-top: 0;
+}
+.section-head h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+/* 제목 + 도움말 아이콘. actions 와 달리 제목 바로 옆에 붙는다 */
+.section-title-with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+}
+
+/* ⓘ 아이콘. 색은 '온보딩 다시 하기'(button.primary)와 같은 --gak-primary 를 쓴다 */
+.mypage .section-head .help-dot {
+  /* 말풍선이 이 아이콘을 기준으로 자리를 잡는다 */
+  position: relative;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gak-primary);
+  border-radius: var(--gak-radius-full);
+  background: none;
+  color: var(--gak-primary);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  font-style: italic;
+  line-height: 1;
+  cursor: help;
+}
+
+.section-head .help-dot:hover {
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+/* 말풍선. 평소에는 없는 것처럼 두고(visibility) 아이콘에 손이 닿을 때만 보인다.
+   display:none 을 쓰지 않는 이유는 그러면 나타날 때 부드럽게 이어지지 않아서다.
+
+   아이콘 바로 아래, 왼쪽 끝을 아이콘에 맞춰 편다.
+   폭을 200px 로 묶은 이유는 사이드바가 320px 이기 때문이다 — 아이콘이 제목 오른쪽에
+   있어서 여기서 더 넓히면 카드 밖으로 나간다(잘리지는 않지만 넘쳐 보인다). */
+.help-bubble {
+  position: absolute;
+  top: calc(100% + var(--gak-space-2));
+  left: 0;
+  z-index: var(--gak-z-toast);
+  width: max-content;
+  max-width: 200px;
+  padding: var(--gak-space-2) var(--gak-space-3);
+  border-radius: var(--gak-radius-md);
+  /* 말풍선은 카드보다 한 단계 어두운 면으로 띄운다. 라이트 테마에서는 --gak-text(진한 남색)를
+     배경으로 썼는데, 다크로 바꾸면서 그대로 두면 흰 덩어리가 된다 */
+  background: var(--gak-surface-dark);
+  border: 1px solid var(--gak-border);
+  color: var(--gak-text);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-normal);
+  font-style: normal;
+  line-height: 1.6;
+  text-align: left;
+  white-space: normal;
+  box-shadow: var(--gak-shadow-md);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--gak-transition-fast),
+    visibility var(--gak-transition-fast);
+}
+
+.help-dot:hover .help-bubble,
+.help-dot:focus-visible .help-bubble {
+  opacity: 1;
+  visibility: visible;
+}
+
+.section-card h3 {
+  margin: 0 0 var(--gak-space-2);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+}
+
+/* ── 공통 텍스트/버튼 ──────────────────────── */
+.muted {
+  color: var(--gak-text-secondary);
+}
+.small {
+  font-size: var(--gak-fs-xs);
+}
+.error {
+  color: var(--gak-status-danger);
+  font-size: var(--gak-fs-base);
+}
+.saved-msg {
+  color: var(--gak-accent);
+  font-size: var(--gak-fs-sm);
+  margin: var(--gak-space-2) 0 0;
+}
+.section-actions {
+  display: flex;
+  gap: var(--gak-space-2);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: var(--gak-space-2);
+}
+/*
+ * .mypage 로 한정한다. 예전에는 셀렉터 없이 button/input/label 을 잡고 있었는데,
+ * Vite 가 CSS 를 한 파일로 합치는 탓에 그 규칙이 앱 전체 버튼에 걸렸다 —
+ * 헤더 알림 종이 밀려 보이던 원인이 이것이다(NotificationBell.module.css 주석 참고).
+ */
+.mypage button {
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: var(--gak-radius-md);
+  padding: var(--gak-space-2) var(--gak-space-3);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-medium);
+}
+.mypage button:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: var(--gak-text);
+}
+.mypage button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.mypage button.primary {
+  background: var(--gak-primary);
+  border-color: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+.mypage button.primary:hover {
+  background: var(--gak-primary-hover);
+}
+.mypage button.danger {
+  background: var(--gak-status-danger);
+  border-color: var(--gak-status-danger);
+  color: var(--gak-text-inverse);
+}
+.mypage button.danger:hover {
+  filter: brightness(0.92);
+}
+/* 버튼처럼 보이는 링크 — 위 button 셀렉터는 <a> 에 걸리지 않는다. */
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--gak-radius-md);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  padding: var(--gak-space-2) var(--gak-space-3);
+  font-size: var(--gak-fs-base);
+}
+.link-button:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: var(--gak-text);
+}
+.link-button.primary {
+  background: var(--gak-primary);
+  border-color: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+.link-button.primary:hover {
+  background: var(--gak-primary-hover);
+}
+.mypage label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-1);
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text-secondary);
+}
+.mypage input {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  padding: 12px 14px;
+  background: var(--gak-surface-sunken);
+  color: var(--gak-text);
+  font-family: inherit;
+  font-size: var(--gak-fs-md);
+}
+.mypage input:focus {
+  outline: none;
+  border-color: var(--gak-accent);
+}
+.badge {
+  display: inline-block;
+  background: var(--gak-primary-light);
+  color: var(--gak-accent);
+  border-radius: var(--gak-radius-full);
+  padding: 2px var(--gak-space-2);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  /* 칸이 좁아도 글자 단위로 쪼개지지 않게 한다 */
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── 프로필 ────────────────────────────────── */
+.profile-row {
+  display: flex;
+  gap: var(--gak-space-4);
+  align-items: flex-start;
+}
+.avatar {
+  width: 56px;
+  height: 56px;
+  font-family: var(--gak-font-num);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--gak-fs-title);
+  font-weight: var(--gak-fw-bold);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.profile-info,
+.profile-form {
+  flex: 1;
+  min-width: 0;
+}
+.profile-nickname {
+  margin: 0 0 var(--gak-space-1);
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+}
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+}
+
+/* 닉네임은 50자 제한이라 칸을 카드 끝까지 늘릴 이유가 없다. 길면 오히려
+   무엇을 적는 칸인지 흐려지고 오른쪽이 텅 빈다. */
+.profile-form label input {
+  max-width: 260px;
+}
+
+/* 사진과 그 조작 버튼을 한 덩어리로 묶어 왼쪽에 세운다.
+   버튼을 오른쪽 입력칸 쪽에 두면 무엇을 바꾸는 버튼인지 한눈에 안 들어온다.
+
+   폭을 사진 크기로 못박는 이유는, 편집을 켜고 끌 때 이 칸이 늘었다 줄었다 하면 오른쪽
+   닉네임·이메일이 통째로 좌우로 밀려서다. 버튼은 이 폭 안에서 아래로 쌓는다. */
+.profile-photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-2);
+  flex-shrink: 0;
+  width: 56px;
+}
+
+/* 사진 아래 붙는 작은 버튼들. 파일 입력은 숨겨 두고 이 버튼으로 연다(ProfileSection 참고) */
+.profile-photo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-1);
+  width: 100%;
+}
+
+.profile-photo-actions button {
+  padding: 2px 0;
+  font-size: var(--gak-fs-xs);
+}
+
+/* ── 요약 3박스 ────────────────────────────── */
+/* 좁아지면 칸이 줄지 않고 아래로 접힌다 — 3칸 고정이면 숫자가 줄바꿈된다 */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: var(--gak-space-3);
+}
+.summary-box {
+  background: var(--gak-bg-muted);
+  border: 1px solid var(--gak-border-soft);
+  border-radius: var(--gak-radius-lg);
+  min-width: 0;
+  padding: var(--gak-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-1);
+}
+.summary-label {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+}
+.summary-value {
+  font-family: var(--gak-font-num);
+  font-size: 22px;
+  line-height: 1.1;
+  /* 좁은 칸에서 숫자가 쪼개지면 카드 높이가 들쭉날쭉해진다 */
+  white-space: nowrap;
+}
+
+/* ── 나의 학습 목표 (2카드 + 요일별 막대) ──── */
+.goals-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gak-space-4);
+}
+@media (max-width: 720px) {
+  .goals-row {
+    grid-template-columns: 1fr;
+  }
+}
+.goal-card {
+  background: var(--gak-bg-muted);
+  border: 1px solid var(--gak-border-soft);
+  border-radius: var(--gak-radius-lg);
+  min-width: 0;
+  padding: var(--gak-space-4);
+}
+.goal-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gak-space-2);
+  margin-bottom: var(--gak-space-3);
+  flex-wrap: wrap;
+}
+.goal-title {
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+}
+.progress-track {
+  height: 10px;
+  border-radius: var(--gak-radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-bottom: var(--gak-space-4);
+}
+.progress-fill {
+  height: 100%;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-accent);
+  transition: width var(--gak-transition-base);
+}
+/* 칸 수는 실제로 그릴 요일 수만큼 인라인 스타일로 넣는다 (이번 주는 오늘까지만 그린다) */
+.week-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--gak-space-1);
+  background: var(--gak-surface-sunken);
+  border-radius: var(--gak-radius-md);
+  padding: var(--gak-space-3) var(--gak-space-2);
+}
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-1);
+}
+.week-value {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+.week-bar-wrap {
+  height: 90px;
+  width: 60%;
+  /* 요일이 적어 칸이 넓어져도 막대가 뚱뚱해지지 않게 막는다 */
+  max-width: 40px;
+  display: flex;
+  align-items: flex-end;
+}
+.week-bar {
+  width: 100%;
+  min-height: 4px;
+  border-radius: var(--gak-radius-sm) var(--gak-radius-sm) 0 0;
+  background: var(--gak-accent);
+}
+.week-bar.empty {
+  background: rgba(255, 255, 255, 0.12);
+  min-height: 3px;
+}
+.week-label {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-secondary);
+}
+.week-label.sun {
+  color: var(--gak-status-danger);
+}
+
+/* ── 통계 점수 카드 ────────────────────────── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: var(--gak-space-3);
+  margin-bottom: var(--gak-space-4);
+}
+.stat-card {
+  background: var(--gak-bg-muted);
+  border: 1px solid var(--gak-border-soft);
+  border-radius: var(--gak-radius-lg);
+  min-width: 0;
+  padding: var(--gak-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-1);
+}
+.stat-card-big {
+  grid-column: span 1;
+  border-color: rgba(138, 201, 38, 0.28);
+  background: rgba(138, 201, 38, 0.08);
+}
+.stat-label {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+}
+.stat-value {
+  font-family: var(--gak-font-num);
+  font-size: 22px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.stat-suffix {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+  font-weight: var(--gak-fw-medium);
+  margin-left: 2px;
+}
+.chart-block {
+  margin-top: var(--gak-space-4);
+}
+
+/* ── 스위치 토글 ───────────────────────────── */
+.toggle-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-3);
+}
+
+/* ── 캘린더 미리보기 ───────────────────────── */
+.schedule-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+}
+.schedule-item {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-md);
+}
+.schedule-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--gak-radius-full);
+  flex-shrink: 0;
+}
+.schedule-date {
+  color: var(--gak-text-secondary);
+  font-weight: var(--gak-fw-bold);
+}
+.schedule-time {
+  color: var(--gak-text-muted);
+}
+
+/* ── 최근 스터디 ───────────────────────────── */
+.study-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-3);
+}
+.study-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-1);
+  padding: var(--gak-space-3);
+  background: var(--gak-bg-muted);
+  border: 1px solid var(--gak-border-soft);
+  border-radius: var(--gak-radius-lg);
+}
+.study-main {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+}
+.study-title {
+  font-weight: var(--gak-fw-bold);
+}
+.study-meta {
+  display: flex;
+  gap: var(--gak-space-1);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+  flex-wrap: wrap;
+}
+.study-score {
+  color: var(--gak-accent);
+  font-weight: var(--gak-fw-bold);
+}
+
+/*
+ * 리포트 섹션의 .report-* 규칙은 components/report/ReportOverviewCard.css 로 옮겼다.
+ * 주간 리포트 페이지도 같은 카드를 쓰게 되면서, 스타일이 마이페이지 CSS 에 얹혀 있으면
+ * 마이페이지를 거치지 않고 들어온 화면에서 모양이 빠질 수 있다.
+ */
+
+/* ── 비밀번호/탈퇴 ─────────────────────────── */
+.password-form,
+.withdraw-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-3);
+}

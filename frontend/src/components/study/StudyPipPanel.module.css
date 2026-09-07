@@ -1,0 +1,351 @@
+/* PiP 창 하나를 통째로 채우는 화면.
+   창 크기를 사용자가 자유롭게 줄일 수 있으므로 고정 높이를 쓰지 않는다 —
+   영상만 남는 폭까지 줄여도 경고 문구가 잘리지 않게 세로로만 쌓는다. */
+.pip-panel {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+  padding: var(--gak-space-3);
+  background: var(--gak-surface);
+  color: var(--gak-text);
+  font-size: var(--gak-fs-sm);
+  overflow: hidden;
+}
+
+/* 경고 중에는 창 테두리 전체를 물들인다. 작은 창은 시야 가장자리에 두고 쓰는 물건이라
+   글자를 읽기 전에 색으로 먼저 알아채야 한다. */
+.pip-panel[data-warning='true'] {
+  box-shadow: inset 0 0 0 3px var(--gak-status-danger);
+}
+
+.pip-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+}
+
+.pip-elapsed {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.pip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-status-ok);
+}
+
+/* 순공이 멈춘 상태 — 옆 라벨이 이유를 말한다 */
+.pip-elapsed[data-paused='true'] .pip-dot {
+  background: var(--gak-text-muted);
+}
+
+/* 창이 좁아지면 이 줄이 먼저 줄어들어 버튼 자리를 내준다. 시간과 버튼은 끝까지 남는다. */
+.pip-note {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pip-actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: var(--gak-space-1);
+}
+
+.pip-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-surface);
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+  transition:
+    border-color var(--gak-transition-fast),
+    background-color var(--gak-transition-fast),
+    color var(--gak-transition-fast);
+}
+
+.pip-icon-btn:hover {
+  border-color: var(--gak-primary);
+  color: var(--gak-primary);
+}
+
+/* 꺼진 상태 — 컨트롤바와 같은 표시다. 작은 창에서 껐다는 걸 못 알아보면
+   말이 안 나가는 줄 모른 채 계속 말하게 된다. */
+.pip-icon-btn[data-off='true'] {
+  border-color: var(--gak-status-danger);
+  background: var(--gak-status-danger);
+  color: var(--gak-text-inverse);
+}
+
+.pip-icon-btn[data-off='true']:hover {
+  border-color: var(--gak-status-danger);
+  color: var(--gak-text-inverse);
+  filter: brightness(0.92);
+}
+
+/* 음성 안내 꺼짐. 마이크·카메라와 달리 빨갛게 칠하지 않는다 — 꺼도 남에게 영향이 가거나
+   기록이 빠지지 않아서, 같은 경고색을 쓰면 문제 상황으로 읽힌다. */
+.pip-icon-btn[data-muted='true'] {
+  color: var(--gak-text-muted);
+}
+
+/* 화면 공유 중. '켜져 있어서 좋은' 상태라 경고색이 아니라 브랜드색으로 표시한다
+   (컨트롤바의 data-active 와 같은 규칙). */
+.pip-icon-btn[data-on='true'] {
+  border-color: var(--gak-primary);
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+}
+
+.pip-icon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pip-icon-btn:disabled:hover {
+  border-color: var(--gak-border);
+  color: var(--gak-text-secondary);
+}
+
+/* 영상 칸. 남는 공간만 차지한다(flex-basis 0) — 창을 줄이면 여기가 먼저 양보하고
+   위쪽 지표는 그대로 남는다. min-height 를 완전히 0 으로 두지 않는 이유는, 요소가
+   아예 사라지다시피 하면 브라우저가 이 영상의 프레임 갱신을 늦출 수 있어서다.
+   자세 판정이 이 요소의 프레임을 읽으므로 최소한의 크기는 남겨 둔다. */
+.pip-stage {
+  position: relative;
+  /* 영상 비율(카메라 1280×720)에 맞춰 높이를 정한다. 예전에는 flex: 1 로 남는 높이를
+     전부 차지해서, 세로로 긴 창에서는 영상 위아래가 검은 여백으로 낭비됐다.
+     창이 짧으면(1 만큼 줄어듦) contain 이 다시 레터박스로 받아 준다. */
+  flex: 0 1 auto;
+  aspect-ratio: 16 / 9;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface-dark);
+  overflow: hidden;
+}
+
+.pip-stage[data-warning='true'] {
+  outline: 2px solid var(--gak-status-danger);
+  outline-offset: -2px;
+}
+
+.pip-video {
+  width: 100%;
+  height: 100%;
+  /* 타일과 같은 contain — 잘라내면 어깨가 화면 밖으로 나가서, 정작 확인해야 할
+     어깨선을 못 보고 자세를 고치게 된다 */
+  object-fit: contain;
+  /* 스터디룸 타일과 같은 좌우 반전 — 거울처럼 보여야 자세를 고치기 쉽다.
+     화면공유를 켜도 이 요소에는 계속 카메라가 흐르므로(useCamera 가 OpenVidu 와 별도로
+     스트림을 잡는다) 반전을 끄지 않는다. */
+  transform: scaleX(-1);
+}
+
+/* 영상을 지우지 않고 덮는 판이라 배경이 불투명해야 한다 */
+.pip-camera-off {
+  position: absolute;
+  inset: 0;
+  z-index: var(--gak-z-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 var(--gak-space-3);
+  background: var(--gak-surface-dark);
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+  text-align: center;
+}
+
+/* 카메라 꺼짐 판(--gak-z-overlay)보다 위에 둔다 — 아니면 카메라를 끄는 순간 이름표가
+   판 뒤로 숨는다 */
+.pip-name {
+  position: absolute;
+  z-index: var(--gak-z-badge);
+  left: var(--gak-space-2);
+  bottom: var(--gak-space-2);
+  padding: 2px var(--gak-space-2);
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-overlay);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-xs);
+}
+
+/* 상태 한 줄과 부위별 카운터는 창이 아무리 작아져도 줄지 않는다(flex: 0 0 auto).
+   이 창을 띄우는 이유가 이 두 줄이라, 여기가 사라지면 창이 남을 이유가 없다. */
+.pip-alert {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: var(--gak-space-2) var(--gak-space-3);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-status-danger);
+  color: var(--gak-text-inverse);
+}
+
+.pip-alert-icon {
+  flex-shrink: 0;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.pip-alert-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.pip-alert-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+}
+
+.pip-alert-count {
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-medium);
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.pip-alert-desc {
+  font-size: var(--gak-fs-xs);
+  opacity: 0.92;
+}
+
+/* 실시간 판정 한 줄. 경고가 없을 때도 같은 자리를 차지한다 — 비워 두면 경고가 뜰 때마다
+   아래 내용이 밀려 올라가서, 창을 흘깃 볼 때 어디를 봐야 할지가 매번 달라진다. */
+.pip-lights {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-2);
+  margin: 0;
+  padding: var(--gak-space-2) var(--gak-space-3);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-bg);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-medium);
+  white-space: nowrap;
+}
+
+.pip-light {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--gak-text-secondary);
+}
+
+/* 위험한 자세는 글자까지 붉게 — 점 하나로는 흘깃 볼 때 안 잡힌다 */
+.pip-light[data-light='danger'] {
+  color: var(--gak-status-danger);
+  font-weight: var(--gak-fw-bold);
+}
+
+.pip-light-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-status-ok);
+}
+
+.pip-light[data-light='caution'] .pip-light-dot {
+  background: var(--gak-status-warning);
+}
+
+.pip-light[data-light='danger'] .pip-light-dot {
+  background: var(--gak-status-danger);
+}
+
+/* 판정 보류(가려짐 등) — 좋다고도 나쁘다고도 안 한다 */
+.pip-light[data-light='paused'] .pip-light-dot {
+  background: var(--gak-text-secondary);
+  opacity: 0.4;
+}
+
+.pip-light-progress {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 회복 중 — 경고 줄을 대신한다. 경고(빨강)와 양호(연초록) 사이의 상태라,
+   "지금 잘하고 있으니 그대로" 가 읽히도록 양호 쪽 색을 쓰되 테두리로 구분한다. */
+.pip-recovery {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: var(--gak-space-2) var(--gak-space-3);
+  border: 1px solid var(--gak-status-ok);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-primary-light);
+  color: var(--gak-primary-hover);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-medium);
+  line-height: 1.5;
+}
+
+.pip-chips {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gak-space-1);
+}
+
+.pip-chip {
+  padding: 2px var(--gak-space-2);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-full);
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-secondary);
+  white-space: nowrap;
+}
+
+/* 한 번만 더 잡히면 스트레칭이 시작된다 */
+.pip-chip[data-near='true'] {
+  border-color: var(--gak-status-warning);
+  color: var(--gak-status-warning);
+}
+
+.pip-chip[data-active='true'] {
+  border-color: var(--gak-status-danger);
+  color: var(--gak-status-danger);
+  font-weight: var(--gak-fw-bold);
+}
+
+/* 돌아가기 아이콘 버튼 — 다른 컨트롤과 같은 크기·모양이되, 이 창에서 가장 자주 누르는
+   버튼이라 색으로만 살짝 도드라지게 한다. (가로 한 줄짜리 큰 버튼은 자리만 먹어서 뺐다) */
+.pip-icon-btn[data-return] {
+  border-color: var(--gak-primary);
+  color: var(--gak-primary);
+}
+
+.pip-icon-btn[data-return]:hover {
+  background: var(--gak-primary-light);
+}

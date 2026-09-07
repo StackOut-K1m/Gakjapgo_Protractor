@@ -1,0 +1,364 @@
+/*
+ * 스크롤해도 위에 남는다. 배경은 불투명한 면이 아니라 반투명 + 뒤 블러라서, 아래 내용이
+ * 헤더 밑으로 비쳐 지나간다 — 어두운 화면에서 헤더가 판때기로 얹혀 보이지 않게 하는 장치다.
+ *
+ * backdrop-filter 를 못 쓰는 브라우저에서는 반투명 배경만 남아 글자가 겹쳐 읽힌다.
+ * 그래서 @supports 로 그런 경우에는 불투명한 배경으로 되돌린다.
+ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--gak-z-header);
+  width: 100%;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--gak-border-soft);
+  background: rgba(45, 52, 62, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header {
+    background: var(--gak-bg);
+  }
+}
+
+/*
+ * 창 폭에 따라 글자·간격이 같이 줄어든다.
+ *
+ * 메뉴는 어떤 폭에서도 한 줄로 나란히 보여야 한다(데스크톱 전용 화면이라 햄버거로 접지 않는다).
+ * 그런데 글자 18px · 간격 64px · 좌우 여백 32px 이 전부 고정이라, 창을 줄이면 줄어들 곳이
+ * 없어서 메뉴가 잘려 나갔다.
+ *
+ * 아래 clamp 들은 모두 같은 두 지점을 잇는 직선이다 — 창 폭 1280px 에서 원래 값,
+ * 640px 에서 최소값. 그 사이는 비례해서 변하고, 바깥은 각각 최소·최대에서 멈춘다.
+ * 값을 손볼 때는 두 끝점을 정하고 기울기를 다시 계산해야 한다. 한쪽만 바꾸면 어긋난다.
+ * (끝점은 '창 폭' 기준이라 아래 max-width 를 바꿔도 기울기는 다시 잡을 필요가 없다)
+ */
+.header-inner {
+  /* 본문과 같은 폭. 따로 박아 두면 개편으로 본문 폭이 바뀔 때 헤더만 어긋난다 */
+  max-width: var(--gak-content-width);
+  height: var(--gak-header-height);
+  margin: 0 auto;
+  /* 32px @1280 → 12px @640 */
+  padding: 0 clamp(12px, 3.125vw - 8px, 32px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* 세 덩어리(로고·메뉴·우측 버튼)가 맞닿아 붙어 보이지 않게 최소 간격을 준다 */
+  gap: clamp(12px, 2vw, 24px);
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+  text-decoration: none;
+  /* 로고는 글자만 줄어들고 그림은 그대로 둔다 */
+  flex-shrink: 0;
+}
+
+.logo-img {
+  width: 36px;
+  height: 40px;
+  object-fit: cover;
+}
+
+.logo-wordmark {
+  /* 20px @1280 → 16px @640 */
+  font-size: clamp(16px, 12px + 0.625vw, 20px);
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.02em;
+  color: var(--gak-text);
+  white-space: nowrap;
+}
+
+/*
+ * 아주 좁아지면 로고 글자를 감춘다(그림은 남긴다).
+ *
+ * 글자만으로 66px(글자 54 + 간격 12)을 쓰는데, 이걸 놓아 주지 않으면 그만큼 좁은 창에서
+ * 로그아웃 버튼과 프로필 사진이 오른쪽으로 밀려 잘린다. 로고는 그림만 남아도 알아볼 수 있지만
+ * 잘린 버튼은 누를 수가 없다.
+ *
+ * 540px 은 로고 글자를 포함한 헤더가 딱 들어가는 폭(로그아웃 상태 526px)에서 조금 남긴 값이다.
+ * 이 위로는 글자가 보이고, 이 아래로는 감춰지면서 460px 까지 모든 요소가 온전히 보인다.
+ */
+@media (max-width: 540px) {
+  .logo-wordmark {
+    display: none;
+  }
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  /* 64px @1280 → 16px @640 */
+  gap: clamp(16px, 7.5vw - 32px, 64px);
+  /* flex 자식은 기본이 min-width:auto 라 내용보다 작아지지 않는다. 풀어 줘야 실제로 줄어든다 */
+  min-width: 0;
+}
+
+/* 15px @1280 → 12px @640. 메뉴 이름이 줄바꿈되면 한 줄 배치가 깨지므로 nowrap 을 같이 건다 */
+.nav-link,
+.nav-dropdown-trigger {
+  font-size: clamp(12px, 9px + 0.46875vw, var(--gak-fs-md));
+  white-space: nowrap;
+}
+
+/* 메뉴는 평소 한 톤 죽여 두고, 지금 보고 있는 화면만 초록으로 앞세운다 */
+.nav-link {
+  font-weight: var(--gak-fw-bold);
+  color: rgba(255, 255, 255, 0.68);
+  text-decoration: none;
+  transition: color var(--gak-transition-fast);
+}
+
+.nav-link:hover {
+  color: var(--gak-accent);
+}
+
+/*
+ * 헤더 높이만큼 늘린다.
+ *
+ * 패널을 top: 100% 로 띄우는데, 래퍼가 글자 높이(24px)뿐이면 그 기준이 헤더 한가운데가 된다.
+ * 그래서 패널이 헤더 아래로 내려오지 않고 헤더를 9px 뚫고 올라와 있었다 — 메뉴가 헤더에서
+ * 내려오는 게 아니라 헤더를 뚫고 나오는 것처럼 보인다.
+ *
+ * 래퍼를 헤더 높이로 맞추면 top: 100% 가 곧 헤더 아래가 되어, 헤더 높이를 바꿔도 따라온다.
+ * 마우스가 머무는 영역이 넓어져서 메뉴를 향해 내려갈 때 덜 끊기는 효과도 있다.
+ */
+.nav-dropdown-wrapper {
+  position: relative;
+  height: var(--gak-header-height);
+  display: flex;
+  align-items: center;
+}
+
+/* button 일 때도 있고 a 일 때도 있다 — 이동까지 하는 항목(리포트)은 링크로 그린다 */
+.nav-dropdown-trigger {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-weight: var(--gak-fw-bold);
+  color: rgba(255, 255, 255, 0.68);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--gak-transition-fast);
+}
+
+.nav-dropdown-trigger:hover {
+  color: var(--gak-accent);
+}
+
+.nav-dropdown-trigger[data-open='true'] {
+  color: var(--gak-accent);
+}
+
+.nav-link.is-active,
+.nav-dropdown-trigger[data-active='true'] {
+  color: var(--gak-accent);
+}
+
+/* 로그인 / 회원가입 / 로그아웃 버튼 공통 크기 */
+.login-link,
+.signup-link,
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  /* 좌우 여백만 줄인다. 글자까지 줄이면 버튼인지 알아보기 어려워진다 */
+  padding: var(--gak-space-2) clamp(8px, 1.25vw, var(--gak-space-4));
+  border-radius: var(--gak-radius-md);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--gak-transition-fast),
+    border-color var(--gak-transition-fast);
+}
+
+/* 로그인: 아웃라인. 어두운 배경에서는 초록 글자 쪽이 잘 읽혀 밝은 초록을 쓴다 */
+.login-link {
+  border: 1px solid var(--gak-accent);
+  background: none;
+  color: var(--gak-accent);
+}
+
+.login-link:hover {
+  background: var(--gak-primary-light);
+}
+
+/* 회원가입: 채운 스타일. 흰 글씨를 얹으므로 한 단계 어두운 초록 */
+.signup-link {
+  border: 1px solid var(--gak-primary);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.signup-link:hover {
+  border-color: var(--gak-primary-hover);
+  background: var(--gak-primary-hover);
+}
+
+/* 로그아웃: 중립 아웃라인. 초록은 '가고 싶은 곳'에만 쓰고 여기엔 안 쓴다 */
+.logout-btn {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--gak-text);
+}
+
+.nav-dropdown-panel {
+  /* 트리거와 패널 사이 간격. 아래 투명한 다리가 딱 이만큼을 덮는다 — 따로 두면 어긋난다.
+     12px 였는데 메뉴가 멀찍이 떠 보인다는 피드백으로 좁혔다(닫힘 유예는 JS 쪽 CLOSE_GRACE_MS). */
+  --panel-offset: 6px;
+
+  position: absolute;
+  /*
+   * 예전에는 top: 40px 고정이었다. 이제 글자 크기가 창 폭에 따라 변해서 트리거 높이도 같이
+   * 변하는데, 고정값을 두면 좁은 화면에서 패널이 메뉴에서 멀찍이 떨어져 뜬다.
+   */
+  top: calc(100% + var(--panel-offset));
+  /* 메뉴 이름 가운데를 기준으로 내려온다. 패널이 트리거보다 넓어 좌우로 고르게 퍼진다 */
+  left: 50%;
+  z-index: var(--gak-z-header);
+  /* 툭 튀어나오지 않게 살짝 내려오며 나타난다. 길면 답답해서 짧게 둔다 */
+  animation: nav-dropdown-in 140ms ease-out;
+  /* 가운데 정렬을 유지한 채 애니메이션이 끝나야 한다 — keyframes 안에서도 -50% 를 함께 준다 */
+  transform: translateX(-50%);
+  min-width: 176px;
+  padding: var(--gak-space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-1);
+  border: 1px solid var(--gak-border);
+  border-radius: 16px;
+  background: var(--gak-surface);
+  box-shadow: var(--gak-shadow-md);
+}
+
+@keyframes nav-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/*
+ * 움직임을 불편해하는 사용자에게는 효과를 빼고 바로 보여 준다.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .nav-dropdown-panel {
+    animation: none;
+  }
+}
+
+/*
+ * 트리거와 패널 사이의 빈 틈을 덮는 투명한 다리.
+ *
+ * 마우스로 여는 메뉴는 이게 없으면 쓸 수가 없다. 패널이 트리거에서 떨어져 떠 있어서,
+ * 하위 항목을 누르러 마우스를 내리는 순간 그 틈에서 래퍼를 벗어나 메뉴가 닫혀 버린다.
+ * 패널의 자식이라 여기 올라와 있는 동안에는 mouseleave 가 일어나지 않는다.
+ */
+.nav-dropdown-panel::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  height: var(--panel-offset);
+}
+
+.nav-dropdown-item {
+  display: block;
+  padding: var(--gak-space-3) var(--gak-space-4);
+  border-radius: var(--gak-radius-md);
+  background: transparent;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-normal);
+  color: var(--gak-text-secondary);
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--gak-transition-fast),
+    color var(--gak-transition-fast);
+}
+
+.nav-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--gak-text);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1vw, var(--gak-space-3));
+  /* 버튼은 잘리면 못 누른다. 좁아질 때 양보하는 쪽은 가운데 메뉴다 */
+  flex-shrink: 0;
+}
+
+.alert-btn {
+  display: flex;
+  padding: var(--gak-space-2);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: none;
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--gak-transition-fast),
+    border-color var(--gak-transition-fast);
+}
+
+.alert-btn:hover {
+  border-color: var(--gak-primary);
+  color: var(--gak-primary);
+}
+
+/* 시안대로 초록으로 채운 동그라미. 사진이 있으면 사진이 그 자리를 덮는다 */
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary);
+  font-family: inherit;
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-black);
+  color: var(--gak-text-inverse);
+  white-space: nowrap;
+  letter-spacing: -0.03em;
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast);
+  /* 사진이 들어오면 동그란 테두리 밖으로 넘치지 않게 자른다 */
+  overflow: hidden;
+  padding: 0;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  /* 세로/가로 사진이 찌그러지지 않게 채운 뒤 넘치는 쪽을 자른다 */
+  object-fit: cover;
+}
+
+.user-avatar:hover {
+  background: var(--gak-primary-hover);
+}
+

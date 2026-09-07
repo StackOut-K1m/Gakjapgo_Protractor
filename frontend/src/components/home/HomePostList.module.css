@@ -1,0 +1,140 @@
+/*
+ * 홈의 공지·이벤트 목록 카드 (공용).
+ *
+ * 두 카드는 한 행에 나란히 서서 같은 높이로 늘어난다(HomePage 의 news-grid 가 stretch).
+ * 카드 안에서 목록이 남는 자리를 차지하므로, 글 수가 달라도 아래선이 맞는다.
+ */
+.post-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-4);
+  padding: var(--gak-space-5);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  min-width: 0;
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gak-space-3);
+}
+
+/* 제목은 줄어들지 않는다. 안내 글씨만 남는 폭을 가져간다 */
+.card-title {
+  flex-shrink: 0;
+}
+
+.card-title {
+  margin: 0;
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  letter-spacing: -0.02em;
+}
+
+/* 무엇을 보여 주는지 밝히는 작은 글씨. 남는 폭을 먹어 '전체 보기'를 오른쪽 끝으로 민다 */
+.card-hint {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+  white-space: nowrap;
+}
+
+.card-more {
+  flex-shrink: 0;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+  text-decoration: none;
+  transition: color var(--gak-transition-fast);
+}
+
+.card-more:hover {
+  color: var(--gak-primary);
+}
+
+.post-list {
+  /* 남는 자리를 목록이 가져간다. 옆 이벤트 카드가 더 길어도 아래가 비지 않는다 */
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 줄 사이 선. 위에 그어야 마지막 줄 아래에 선이 남지 않는다 */
+.post-list li + li .post-item {
+  border-top: 1px solid var(--gak-surface-alt);
+}
+
+.post-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-3);
+  padding: var(--gak-space-3) var(--gak-space-2);
+  border-radius: var(--gak-radius-sm);
+  text-decoration: none;
+  transition: background-color var(--gak-transition-fast);
+}
+
+.post-item:hover {
+  background: var(--gak-surface-alt);
+}
+
+/* 제목이 길면 한 줄에서 자른다. 두 줄로 넘어가면 네 줄의 높이가 제각각이 된다 */
+.post-title {
+  min-width: 0;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.post-item:hover .post-title {
+  color: var(--gak-primary);
+}
+
+.post-meta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+}
+
+/* 새 글 표시. 글자 하나짜리 점이라 목록의 리듬을 흐트러뜨리지 않는다 */
+.post-new {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-status-danger);
+  color: var(--gak-text-inverse);
+  font-size: 10px;
+  font-weight: var(--gak-fw-bold);
+  line-height: 1;
+}
+
+.post-date {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.card-empty {
+  flex: 1;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+}

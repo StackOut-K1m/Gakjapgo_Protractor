@@ -1,0 +1,62 @@
+.site-footer {
+  width: 100%;
+  margin-top: auto;
+  /* 면을 깔지 않는다 — 본문과 같은 배경 위에 선 하나로만 나뉜다(시안) */
+  background: transparent;
+}
+
+.footer-inner {
+  max-width: var(--gak-content-width);
+  margin: 0 auto;
+  padding: 32px var(--gak-content-padding) 48px;
+  border-top: 1px solid var(--gak-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* 좁아지면 링크가 브랜드 아래로 내려간다 */
+  flex-wrap: wrap;
+  gap: var(--gak-space-5);
+}
+
+.footer-brand-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-1);
+}
+
+.footer-brand {
+  margin: 0;
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.02em;
+  color: var(--gak-text);
+}
+
+.footer-desc {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.footer-copy {
+  margin: 0;
+  font-size: var(--gak-fs-xs);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.footer-link {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-accent);
+  text-decoration: none;
+  transition: color var(--gak-transition-fast);
+}
+
+.footer-link:hover {
+  color: var(--gak-text);
+}

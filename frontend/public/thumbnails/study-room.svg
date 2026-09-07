@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="독서실">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="lamp" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#fde68a" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="360" fill="url(#bg)"/>
+
+  <!-- 칸막이 -->
+  <rect x="352" y="52" width="256" height="212" rx="6" fill="#1e293b"/>
+  <rect x="352" y="52" width="256" height="212" rx="6" fill="none" stroke="#334155" stroke-width="4"/>
+  <line x1="480" y1="52" x2="480" y2="264" stroke="#334155" stroke-width="4"/>
+
+  <!-- 스탠드 불빛 -->
+  <path d="M436 128 L556 264 H332 Z" fill="url(#lamp)"/>
+
+  <!-- 스탠드 -->
+  <rect x="424" y="150" width="10" height="106" rx="5" fill="#94a3b8"/>
+  <rect x="396" y="250" width="66" height="12" rx="6" fill="#94a3b8"/>
+  <path d="M400 122 h72 l16 34 h-104 z" fill="#e2e8f0"/>
+
+  <!-- 책상 -->
+  <rect x="0" y="262" width="640" height="98" fill="#0b1220"/>
+  <rect x="0" y="256" width="640" height="12" rx="6" fill="#475569"/>
+
+  <!-- 펼친 책 -->
+  <path d="M300 214 l84 -14 v54 l-84 14 z" fill="#f8fafc"/>
+  <path d="M300 214 l-84 -14 v54 l84 14 z" fill="#e2e8f0"/>
+  <line x1="300" y1="214" x2="300" y2="268" stroke="#94a3b8" stroke-width="4"/>
+  <g stroke="#cbd5e1" stroke-width="4" stroke-linecap="round">
+    <line x1="232" y1="218" x2="286" y2="227"/>
+    <line x1="232" y1="234" x2="286" y2="243"/>
+    <line x1="314" y1="227" x2="368" y2="218"/>
+    <line x1="314" y1="243" x2="368" y2="234"/>
+  </g>
+
+</svg>

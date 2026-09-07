@@ -1,0 +1,90 @@
+.highlight-layer {
+  position: absolute;
+  inset: 0;
+  z-index: var(--gak-z-overlay);
+  width: 100%;
+  height: 100%;
+  /* 비디오가 거울 모드(scaleX(-1))이므로 좌표계를 맞춘다 */
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+
+/* ── 그라디언트 색상 ── */
+.glow-inner[data-severity='mild'] {
+  stop-color: var(--gak-severity-mild, #ffca3a);
+  stop-opacity: 0.55;
+}
+.glow-inner[data-severity='moderate'] {
+  stop-color: var(--gak-severity-moderate, #ee8332);
+  stop-opacity: 0.6;
+}
+.glow-inner[data-severity='severe'] {
+  stop-color: var(--gak-severity-severe, #f04652);
+  stop-opacity: 0.68;
+}
+
+.glow-mid[data-severity='mild'] {
+  stop-color: var(--gak-severity-mild, #ffca3a);
+  stop-opacity: 0.28;
+}
+.glow-mid[data-severity='moderate'] {
+  stop-color: var(--gak-severity-moderate, #ee8332);
+  stop-opacity: 0.32;
+}
+.glow-mid[data-severity='severe'] {
+  stop-color: var(--gak-severity-severe, #f04652);
+  stop-opacity: 0.38;
+}
+
+.glow-outer {
+  stop-color: transparent;
+  stop-opacity: 0;
+}
+
+/* ── 원 ── */
+.highlight-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.highlight-glow[data-severity='moderate'] {
+  animation-duration: 1.4s;
+}
+
+.highlight-glow[data-severity='severe'] {
+  animation-duration: 0.9s;
+}
+
+.highlight-ring {
+  fill: none;
+  stroke-width: 0.08;
+  stroke-dasharray: 0.5 0.35;
+}
+
+.highlight-ring[data-severity='mild'] {
+  stroke: var(--gak-severity-mild, #ffca3a);
+  opacity: 0.7;
+}
+.highlight-ring[data-severity='moderate'] {
+  stroke: var(--gak-severity-moderate, #ee8332);
+  opacity: 0.8;
+}
+.highlight-ring[data-severity='severe'] {
+  stroke: var(--gak-severity-severe, #f04652);
+  opacity: 0.9;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .highlight-glow {
+    animation: none;
+  }
+}

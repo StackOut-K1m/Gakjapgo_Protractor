@@ -1,0 +1,54 @@
+.page-header {
+  width: 100%;
+}
+
+.page-header-inner {
+  max-width: var(--gak-content-width);
+  margin: 0 auto;
+  padding-bottom: 26px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--gak-space-5);
+  /* 좁아지면 오른쪽 버튼이 제목 아래로 내려간다 */
+  flex-wrap: wrap;
+}
+
+.page-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+  min-width: 0;
+}
+
+.breadcrumb {
+  margin: 0;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text-muted);
+}
+
+.page-title {
+  margin: 0;
+  font-size: 40px;
+  font-weight: var(--gak-fw-black);
+  line-height: 1.12;
+  color: var(--gak-text);
+  letter-spacing: -0.038em;
+}
+
+@media (max-width: 720px) {
+  .page-title {
+    font-size: 30px;
+  }
+}
+
+.page-description {
+  margin: 0;
+  font-size: var(--gak-fs-md);
+  color: var(--gak-text-secondary);
+  word-break: keep-all;
+}
+
+.page-header-actions {
+  flex-shrink: 0;
+}

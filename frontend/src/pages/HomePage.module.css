@@ -1,0 +1,63 @@
+.home-page {
+  min-height: 100%;
+  /*
+   * 히어로가 본문 폭보다 넓게 깔려야 배경 도로가 화면 끝까지 이어진다.
+   * .app-main 의 좌우 여백(48px)을 히어로만 되돌려 준다 — 히어로가 자기 여백을 갖고 있다.
+   */
+  margin: calc(var(--gak-space-6) * -1) -48px 0;
+  padding: var(--gak-space-6) 48px 0;
+}
+
+.home-inner {
+  max-width: var(--gak-content-width);
+  margin: 0 auto;
+  padding-bottom: var(--gak-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-section-gap, 88px);
+}
+
+.top-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-5);
+}
+
+.top-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-4);
+}
+
+.top-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: var(--gak-space-4);
+}
+
+@media (max-width: 900px) {
+  .top-cards {
+    grid-template-columns: 1fr;
+  }
+}
+/*
+ * 공지 + 이벤트 한 행.
+ *
+ * align-items 를 기본값(stretch)으로 두어 두 카드가 같은 높이로 늘어난다. 그래서
+ * 공지가 네 줄이든 이벤트 카드가 몇 장이든 아래선이 항상 맞는다.
+ *
+ * 둘이 같은 목록 카드라 폭도 반씩 나눈다. 한쪽만 넓히면 같은 모양의 카드가 크기만
+ * 다른 셈이 되어, 보는 사람이 왜 다른지 이유를 찾게 된다.
+ */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gak-space-4);
+}
+
+/* 좁아지면 위아래로 쌓는다. 두 열로 두면 이벤트 카드가 잘린다 */
+@media (max-width: 900px) {
+  .news-grid {
+    grid-template-columns: 1fr;
+  }
+}

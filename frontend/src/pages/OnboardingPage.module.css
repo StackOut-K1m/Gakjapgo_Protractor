@@ -1,0 +1,438 @@
+.onboarding-page {
+  min-height: 100vh;
+  padding: var(--gak-space-6) var(--gak-space-4) 40vh;
+  /* 배경은 body 의 그러데이션이 그대로 비친다 — 여기서 면을 깔면 그 위를 덮는다 */
+  background: transparent;
+}
+
+/* 마지막 단계도 화면 위쪽까지 스크롤될 수 있도록 아래를 크게 비운다.
+   이게 없으면 4단계가 화면 하단에 걸려 자동 스크롤이 어중간하게 멈춘다. */
+
+.onboarding-inner {
+  /* 시안 기준 720px. 칩이 한 줄에 서너 개씩 들어가는 폭이다 */
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-5);
+}
+
+.loading,
+.load-error {
+  max-width: 720px;
+  margin: var(--gak-space-6) auto;
+  text-align: center;
+  font-size: var(--gak-fs-md);
+  color: var(--gak-text-secondary);
+}
+
+.load-error {
+  color: var(--gak-status-danger);
+}
+
+/* ── 상단 인사 ── */
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+}
+
+.intro-title {
+  margin: 0;
+  font-size: 34px;
+  font-weight: var(--gak-fw-black);
+  line-height: 1.15;
+  color: var(--gak-text);
+  letter-spacing: -0.035em;
+}
+
+.intro-sub {
+  margin: 0;
+  font-size: var(--gak-fs-md);
+  color: var(--gak-text-secondary);
+  word-break: keep-all;
+}
+
+.skip-btn {
+  align-self: flex-start;
+  margin-top: var(--gak-space-2);
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.skip-btn:hover {
+  color: var(--gak-text-secondary);
+}
+
+/* ── 단계 카드 ── */
+.step {
+  scroll-margin-top: 88px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-3);
+  padding: 24px 26px 26px;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-xl);
+  background: var(--gak-surface);
+  outline: none;
+  animation: step-in var(--gak-transition-base, 200ms) ease-out;
+}
+
+/* 이미 지나온 단계는 살짝 흐리게 두어 지금 답할 곳을 구분한다. */
+.step:not([data-active='true']) {
+  opacity: 0.72;
+}
+
+.step[data-active='true'] {
+  border-color: rgba(138, 201, 38, 0.5);
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step {
+    animation: none;
+  }
+}
+
+.step-badge {
+  margin: 0;
+  font-family: var(--gak-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-accent);
+}
+
+.step-title {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -0.02em;
+  font-weight: var(--gak-fw-black);
+  color: var(--gak-text);
+  word-break: keep-all;
+}
+
+.step-desc {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  word-break: keep-all;
+}
+
+/* ── 선택 칩 ── */
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gak-space-2);
+}
+
+.chip {
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--gak-radius-full);
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: var(--gak-fw-medium);
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+  transition:
+    border-color var(--gak-transition-fast),
+    background-color var(--gak-transition-fast),
+    color var(--gak-transition-fast);
+}
+
+.chip:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: var(--gak-text);
+}
+
+.chip[data-selected='true'] {
+  border-color: var(--gak-accent);
+  background: var(--gak-primary-light);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-accent);
+}
+
+/* ── 입력 필드 ── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+}
+
+.label {
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.optional {
+  font-weight: var(--gak-fw-normal);
+  color: var(--gak-text-muted);
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  background: var(--gak-surface-sunken);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--gak-accent);
+}
+
+.input[data-invalid='true'] {
+  border-color: var(--gak-status-danger);
+}
+
+.minutes-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+}
+
+.minutes-row .input {
+  max-width: 160px;
+}
+
+.unit {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+}
+
+.field-hint {
+  margin: 0;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+
+.field-error {
+  margin: 0;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-status-danger);
+}
+
+/* ── 동의 ── */
+.privacy-note {
+  margin: 0;
+  padding: var(--gak-space-3) var(--gak-space-4);
+  border: 1px solid var(--gak-border-soft);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-bg-muted);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  word-break: keep-all;
+}
+
+.consent-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gak-space-3);
+}
+
+.consent-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-1);
+  padding: var(--gak-space-4);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface-sunken);
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color var(--gak-transition-fast),
+    background-color var(--gak-transition-fast);
+}
+
+.consent-card[data-on='true'] {
+  border-color: rgba(138, 201, 38, 0.5);
+  background: var(--gak-primary-light);
+}
+
+.consent-emoji {
+  font-size: 24px;
+}
+
+.consent-label {
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.consent-state {
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-muted);
+}
+
+.consent-state {
+  font-family: var(--gak-font-mono);
+}
+
+.consent-card[data-on='true'] .consent-state {
+  color: var(--gak-accent);
+}
+
+/* 감지 동의를 껐을 때 뜨는 안내. 오류는 아니라서 빨강 대신 주의색을 쓴다. */
+.consent-required {
+  margin: var(--gak-space-3) 0 0;
+  padding: var(--gak-space-3) var(--gak-space-4);
+  border: 1px solid rgba(255, 202, 58, 0.32);
+  border-radius: var(--gak-radius-md);
+  background: rgba(255, 202, 58, 0.12);
+  color: var(--gak-status-warning);
+  font-size: var(--gak-fs-sm);
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.agree-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text);
+  cursor: pointer;
+}
+
+/* ── 버튼 ── */
+.step-actions {
+  margin-top: var(--gak-space-2);
+  display: flex;
+  gap: var(--gak-space-2);
+}
+
+.next-btn,
+.submit-btn {
+  flex: 1;
+  padding: 14px var(--gak-space-5);
+  border: none;
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-primary);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-inverse);
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast);
+}
+
+.next-btn:hover:not(:disabled),
+.submit-btn:hover:not(:disabled) {
+  background: var(--gak-primary-hover);
+}
+
+.next-btn:disabled,
+.submit-btn:disabled {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--gak-text-muted);
+  cursor: not-allowed;
+}
+
+.prev-btn {
+  flex-shrink: 0;
+  padding: 14px var(--gak-space-5);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--gak-radius-md);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-medium);
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+}
+
+.prev-btn:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: var(--gak-text);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+
+.error {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-status-danger);
+}
+
+@media (max-width: 600px) {
+  .consent-group {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ── 4단계 진행 바 ──
+   각 단계가 한 칸이다. 채워진 칸이 곧 "다 채운 단계" 수라서 위치와 진행률을 함께 읽는다. */
+.progress {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.progress-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background-color var(--gak-transition-base);
+}
+
+.progress-step[data-done='true'] .progress-bar {
+  background: var(--gak-accent);
+}
+
+/* 지금 답하고 있는 칸은 아직 안 찼어도 어디인지 보여야 한다 */
+.progress-step[data-current='true'][data-done='false'] .progress-bar {
+  background: rgba(138, 201, 38, 0.4);
+}
+
+.progress-label {
+  font-family: var(--gak-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--gak-text-muted);
+}
+
+.progress-step[data-done='true'] .progress-label,
+.progress-step[data-current='true'] .progress-label {
+  color: var(--gak-text-secondary);
+}

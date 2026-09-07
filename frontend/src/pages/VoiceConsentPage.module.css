@@ -1,0 +1,203 @@
+.page {
+  display: flex;
+  justify-content: center;
+  padding: 56px 24px;
+  background: var(--gak-bg-subtle);
+  min-height: 100vh;   /* 100% → 100vh */
+}
+
+.card {
+  zoom: 0.8;
+  width: 100%;
+  max-width: 560px;
+  padding: 40px 44px;
+  background: var(--gak-surface);
+  border: 1px solid var(--gak-border);
+  border-radius: 20px;
+  box-shadow: var(--gak-shadow-md);
+  /* 전역 가운데 정렬 상속 차단 */
+  text-align: left;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 12px;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--gak-text);
+}
+
+.lead {
+  margin: 0 0 28px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--gak-text-secondary);
+}
+
+/* ─── 안내 박스 ─── */
+.infoBox {
+  margin: 0 0 28px;
+  padding: 20px 28px;
+  background: var(--gak-bg-muted);
+  border-radius: 16px;
+}
+
+.infoRow {
+  display: flex;
+  align-items: baseline;
+  gap: 28px;
+  padding: 7px 0;
+}
+
+.infoRow dt {
+  flex: 0 0 64px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gak-text);
+}
+
+.infoRow dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--gak-text-secondary);
+}
+
+/* ─── 전체 동의 ─── */
+.allAgree {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  margin: 0 0 20px;
+  border: 2px solid var(--gak-border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.allAgreeOn {
+  background: var(--gak-primary-light);
+  border-color: var(--gak-primary);
+}
+
+.allAgreeText {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gak-text);
+}
+
+/* ─── 개별 항목 ─── */
+.itemList {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 7px 20px;
+  cursor: pointer;
+}
+
+.tagRequired,
+.tagOptional {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tagRequired {
+  color: var(--gak-status-danger);
+}
+
+.tagOptional {
+  color: var(--gak-text-secondary);
+}
+
+.itemLabel {
+  font-size: 14px;
+  color: var(--gak-text);
+}
+
+/* ─── 체크박스 ─── */
+.checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.checkbox:checked {
+  background-color: var(--gak-primary);
+  border-color: var(--gak-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.4l3.4 3.4L13 5'/%3E%3C/svg%3E");
+  background-size: 13px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ─── 하단 안내 ─── */
+.notice {
+  margin: 0 0 28px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--gak-text-muted);
+}
+
+.popupBlocked {
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--gak-status-danger);
+}
+
+/* ─── 버튼 ─── */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 12px;
+}
+
+.secondaryButton,
+.primaryButton {
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.secondaryButton {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--gak-text);
+}
+
+.primaryButton {
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.primaryButton:disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--gak-text-muted);
+  cursor: not-allowed;
+}

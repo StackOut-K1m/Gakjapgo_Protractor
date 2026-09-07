@@ -1,0 +1,98 @@
+/* 영상 위에 얹히는 실시간 판정 패널. 클릭을 가로채면 안 되므로 이벤트를 통과시킨다 */
+.posture-lights {
+  position: absolute;
+  top: var(--gak-space-4);
+  left: var(--gak-space-4);
+  z-index: var(--gak-z-badge);
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+  padding: var(--gak-space-3);
+  border-radius: var(--gak-radius-md);
+  /* 밝은 영상 위에서도 글자가 읽혀야 한다 */
+  background: rgb(0 0 0 / 55%);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+.title {
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  opacity: 0.75;
+}
+
+.notice {
+  margin: 0;
+  font-size: var(--gak-fs-xs);
+  opacity: 0.75;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-1);
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-xs);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentcolor;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+.state {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+
+/* 신호등 — posture-lab.html 과 같은 기준으로 색을 나눈다 */
+.item[data-light='ok'] {
+  color: var(--gak-status-ok);
+}
+
+.item[data-light='caution'] {
+  color: var(--gak-severity-mild);
+}
+
+/* 확정 기준 이상. 이대로 10초가 지나면 경고 1회가 된다 — 깜빡여서 눈에 띄게 한다 */
+.item[data-light='danger'] {
+  color: var(--gak-status-danger);
+  font-weight: var(--gak-fw-bold);
+}
+
+.item[data-light='danger'] .dot {
+  animation: posture-blink 1s steps(1, end) infinite;
+}
+
+.item[data-light='paused'] {
+  color: var(--gak-text-muted);
+}
+
+@keyframes posture-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item[data-light='danger'] .dot {
+    animation: none;
+  }
+}

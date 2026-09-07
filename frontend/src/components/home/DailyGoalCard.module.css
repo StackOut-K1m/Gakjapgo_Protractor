@@ -1,0 +1,271 @@
+.goal-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-4);
+  padding: var(--gak-space-5);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+}
+
+.goal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-3);
+}
+
+.goal-title {
+  margin: 0;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-secondary);
+}
+
+.goal-setting-btn {
+  flex-shrink: 0;
+  padding: var(--gak-space-1) var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-surface);
+  font-family: inherit;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+  transition:
+    border-color var(--gak-transition-fast),
+    color var(--gak-transition-fast);
+}
+
+.goal-setting-btn:hover {
+  border-color: var(--gak-primary);
+  color: var(--gak-primary);
+}
+
+.goal-body {
+  position: relative;
+  align-self: center;
+  width: 200px;
+  max-width: 100%;
+}
+
+.goal-donut {
+  display: block;
+  width: 100%;
+  transform: rotate(-90deg);
+}
+
+.donut-track {
+  fill: none;
+  stroke: var(--gak-bg);
+  stroke-width: 14;
+}
+
+/* 12시 방향에서 시계 방향으로 차오른다.
+   (부모 svg 가 -90deg 회전돼 있어 stroke 시작점이 12시다) */
+.donut-fill {
+  fill: none;
+  stroke: var(--gak-primary);
+  stroke-width: 14;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1100ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .donut-fill {
+    transition: none;
+  }
+}
+
+.goal-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gak-space-1);
+  pointer-events: none;
+}
+
+.goal-studied {
+  margin: 0;
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-text);
+}
+
+.goal-target {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-percent {
+  margin-top: var(--gak-space-1);
+  padding: 2px var(--gak-space-3);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 목표 시간 설정 창 (홈 안에서만 뜨는 작은 창) ── */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--gak-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gak-space-4);
+  background: var(--gak-overlay);
+}
+
+.dialog {
+  width: 360px;
+  max-width: 100%;
+  /* 온보딩 미완료 시 항목이 늘어나므로 화면을 넘기면 창 안에서 스크롤한다. */
+  max-height: calc(100vh - var(--gak-space-6) * 2);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-3);
+  padding: var(--gak-space-5);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  box-shadow: var(--gak-shadow-md);
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.dialog-desc {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  word-break: keep-all;
+}
+
+.dialog-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gak-space-2);
+}
+
+.dialog-chip {
+  padding: var(--gak-space-2) var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-surface);
+  font-family: inherit;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+}
+
+.dialog-chip[data-selected='true'] {
+  border-color: var(--gak-primary);
+  background: var(--gak-primary-light);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-primary);
+}
+
+.dialog-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+}
+
+.dialog-input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+}
+
+.dialog-input:focus {
+  outline: 2px solid var(--gak-primary);
+  outline-offset: -1px;
+}
+
+.dialog-input[data-invalid='true'] {
+  border-color: var(--gak-status-danger);
+}
+
+.dialog-unit {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+}
+
+.dialog-hint {
+  margin: 0;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+
+.dialog-error {
+  margin: 0;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-status-danger);
+  word-break: keep-all;
+}
+
+.dialog-actions {
+  margin-top: var(--gak-space-2);
+  display: flex;
+  gap: var(--gak-space-2);
+}
+
+.dialog-cancel,
+.dialog-save {
+  flex: 1;
+  padding: var(--gak-space-3);
+  border-radius: var(--gak-radius-md);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+}
+
+.dialog-cancel {
+  border: 1px solid var(--gak-border);
+  background: var(--gak-surface);
+  color: var(--gak-text-secondary);
+}
+
+.dialog-cancel:hover {
+  border-color: var(--gak-primary);
+  color: var(--gak-primary);
+}
+
+.dialog-save {
+  border: none;
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.dialog-save:hover:not(:disabled) {
+  background: var(--gak-primary-hover);
+}
+
+.dialog-save:disabled {
+  background: var(--gak-border);
+  color: var(--gak-text-muted);
+  cursor: not-allowed;
+}

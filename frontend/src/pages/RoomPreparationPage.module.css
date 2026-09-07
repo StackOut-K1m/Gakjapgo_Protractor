@@ -1,0 +1,181 @@
+.preparation-page {
+  min-height: 100vh;
+  padding: var(--gak-space-6) var(--gak-space-4);
+  background: var(--gak-bg);
+}
+
+.preparation-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-5);
+}
+
+/* ── 상단 룸 정보 바 ── */
+.room-info-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+  padding: var(--gak-space-4) var(--gak-space-5);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+}
+
+.live-badge {
+  padding: 2px var(--gak-space-2);
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-live);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  letter-spacing: 0.06em;
+  color: var(--gak-text-inverse);
+}
+
+.room-title {
+  margin: 0;
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.room-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--gak-border);
+}
+
+.participant-count {
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.camera-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-status-danger);
+}
+
+.camera-status[data-connected='true'] {
+  color: var(--gak-status-ok);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--gak-radius-full);
+  background: currentColor;
+}
+
+/* ── 하단 액션 영역 ── */
+.action-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-3);
+}
+
+.retry-btn,
+.calibrate-btn,
+.enter-btn {
+  width: 100%;
+  max-width: 320px;
+  padding: var(--gak-space-4);
+  border: none;
+  border-radius: var(--gak-radius-md);
+  font-family: inherit;
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast);
+}
+
+.retry-btn {
+  background: var(--gak-status-danger);
+  color: var(--gak-text-inverse);
+}
+
+.calibrate-btn {
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.enter-btn {
+  background: var(--gak-border);
+  color: var(--gak-text-muted);
+}
+
+.calibrate-btn:disabled,
+.enter-btn:disabled {
+  cursor: not-allowed;
+}
+
+.calibrate-btn:disabled {
+  background: var(--gak-border);
+  color: var(--gak-text-muted);
+}
+
+/*
+ * 입장 버튼은 기준선이 저장돼야 초록으로 바뀐다.
+ * 예전에는 감지 상태(data-status='verified')만 보고 색이 바뀌었는데,
+ * 이제 인식됐다고 바로 입장할 수 있는 게 아니라 기준 자세 등록이 먼저다.
+ */
+.enter-btn[data-ready] {
+  background: var(--gak-status-ok);
+  color: var(--gak-text-inverse);
+}
+
+.action-hint {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+  text-align: center;
+  word-break: keep-all;
+}
+/* ── 잘못된 방 주소 안내 ── */
+.invalid-room {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-3);
+  padding: var(--gak-space-6) var(--gak-space-5);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  text-align: center;
+}
+
+.invalid-room-title {
+  margin: 0;
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.invalid-room-desc {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  word-break: keep-all;
+}
+
+/* 잘못된 방 화면의 버튼은 data-status 가 없어 초록으로 안 바뀌므로 직접 지정한다 */
+.enter-btn[data-active] {
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.enter-error {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-status-danger);
+  text-align: center;
+  word-break: keep-all;
+}

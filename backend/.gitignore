@@ -1,0 +1,17 @@
+.gradle/
+build/
+out/
+
+*.log
+*.class
+
+.settings/
+.classpath
+.project
+
+bin/
+
+application-local.yml
+
+# 주간 리포트 PDF 생성물 (app.report.storage-dir 기본 경로)
+data/

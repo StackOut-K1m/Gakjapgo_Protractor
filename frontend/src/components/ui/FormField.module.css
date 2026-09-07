@@ -1,0 +1,44 @@
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+  width: 100%;
+}
+
+.field-label-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.field-label {
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.required-mark {
+  font-size: var(--gak-fs-base);
+  color: var(--gak-status-danger);
+}
+
+.field-input {
+  width: 100%;
+  padding: var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+  transition: border-color var(--gak-transition-fast);
+}
+
+.field-input::placeholder {
+  color: var(--gak-text-muted);
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--gak-primary);
+}

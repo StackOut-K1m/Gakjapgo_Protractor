@@ -1,0 +1,200 @@
+@import './styles/variables.css';
+
+/*
+ * 본문 한글 폰트 — 자연산스(눈누 배포, SIL OFL · 웹 임베딩 허용).
+ *
+ * Regular(400)·Medium(500) 두 벌뿐이라 굵기를 그 이상 요구하면 브라우저가 흉내 낸다.
+ * 어디까지 요구할지는 variables.css 의 --gak-fw-* 주석 참고.
+ *
+ * 한글 폰트라 한 벌에 800KB 쯤 된다. swap 을 걸어 두어 받는 동안에는 시스템 폰트로 먼저
+ * 읽히고, 다 받으면 바뀐다 — 안 그러면 첫 화면이 몇 초간 빈 글자로 남는다.
+ */
+@font-face {
+  font-family: 'NaturalSans';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607201621@jayeonsans-medium/jayeonsans-medium/JayeonSans-Regular.woff2')
+    format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NaturalSans';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607201621@jayeonsans-medium/jayeonsans-medium/JayeonSans-Medium.woff2')
+    format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--gak-font-body);
+  line-height: 1.5;
+  /*
+   * 배경·글자색을 body 에 둔다. .app-main 에만 걸면 그 밖(스크롤 여백, 모달 뒤)이
+   * 브라우저 기본 흰색으로 남아 다크 화면에 흰 띠가 생긴다.
+   *
+   * 30° 빗금 결이 깔려 있었는데 걷어냈다 — 화면 어디를 봐도 사선이 지나가서 카드 테두리와
+   * 섞여 보였다. 오른쪽 위에서 옅게 밝아지는 그러데이션만 남긴다.
+   * fixed 로 고정해서 스크롤해도 빛의 위치가 따라 흐르지 않게 한다.
+   */
+  background:
+    radial-gradient(120% 80% at 78% 8%, #3a424e 0%, #2d343e 52%, #242a32 100%)
+      fixed,
+    var(--gak-bg);
+  color: var(--gak-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 폼 요소는 폰트를 물려받지 않는다 — 지정해 두지 않으면 입력창만 시스템 폰트로 뜬다 */
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+}
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  /*
+   * 여기서 줄어들기를 멈춘다. 창을 더 좁히면 레이아웃이 뭉개지는 대신 가로 스크롤바가 뜬다.
+   *
+   * 헤더뿐 아니라 페이지 전체에 거는 이유는, 헤더만 막으면 본문은 계속 줄어들어
+   * 둘의 폭이 어긋나기 때문이다. 배경과 테두리도 이 폭을 따라가야 가로로 스크롤했을 때
+   * 중간에서 끊기지 않는다.
+   */
+  min-width: var(--gak-min-app-width);
+}
+
+.app-main {
+  flex: 1;
+  padding: var(--gak-space-6) 48px 88px;
+  /* body 의 그러데이션이 그대로 비쳐야 한다 — 여기서 면을 깔면 그 위를 덮는다 */
+  background: transparent;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--gak-z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-4);
+  height: var(--gak-header-height);
+  padding: 0 var(--gak-space-6);
+  background: var(--gak-surface);
+  border-bottom: 1px solid var(--gak-border);
+}
+
+.app-header .logo {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-logo);
+  font-weight: var(--gak-fw-bold);
+  text-decoration: none;
+  color: var(--gak-text);
+}
+
+.logo-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-lg);
+}
+
+.app-nav {
+  display: flex;
+  gap: var(--gak-space-6);
+}
+
+.app-nav a {
+  text-decoration: none;
+  color: var(--gak-text-secondary);
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-medium);
+}
+
+.app-nav a:hover {
+  color: var(--gak-text);
+}
+
+.app-nav a.active {
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+}
+
+.bell-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-surface);
+  cursor: pointer;
+  font-size: var(--gak-fs-md);
+}
+
+.bell-btn:hover {
+  background: var(--gak-surface-alt);
+}
+
+.header-avatar {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--gak-primary);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+}
+
+.login-link {
+  text-decoration: none;
+  color: var(--gak-text-secondary);
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-medium);
+}
+
+.coming-soon {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.store-sample {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--gak-border);
+  border-radius: 8px;
+  max-width: 320px;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.5rem;
+}

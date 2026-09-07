@@ -1,0 +1,107 @@
+/* 종료 화면의 타임랩스 카드. 왼쪽 열의 남은 높이를 채운다 */
+.timelapse {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-3);
+  min-height: 200px;
+  padding: var(--gak-space-5);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.note {
+  margin: 0;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text-muted);
+  word-break: keep-all;
+}
+
+/* ── 재생 화면 ── */
+.stage {
+  position: relative;
+  width: 100%;
+  border-radius: var(--gak-radius-md);
+  overflow: hidden;
+  background: var(--gak-surface-dark);
+}
+
+.screen {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ── 자세 타임라인 ── */
+.strip {
+  width: 100%;
+  height: 12px;
+  border-radius: var(--gak-radius-sm);
+  cursor: pointer;
+}
+
+/* ── 조작 ── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+}
+
+.play-btn {
+  padding: var(--gak-space-2) var(--gak-space-4);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  color: var(--gak-text);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+}
+
+.play-btn:hover {
+  background: var(--gak-surface-alt, var(--gak-surface));
+}
+
+.counter {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 색 범례 ── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--gak-space-3);
+  margin: 0;
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+
+/* 색은 PostureLights 와 같은 값이다 */
+.legend span[data-light='ok'] {
+  color: var(--gak-status-ok);
+}
+
+.legend span[data-light='caution'] {
+  color: var(--gak-severity-mild);
+}
+
+.legend span[data-light='danger'] {
+  color: var(--gak-status-danger);
+}
+
+.legend span[data-light='paused'] {
+  color: var(--gak-text-muted);
+}

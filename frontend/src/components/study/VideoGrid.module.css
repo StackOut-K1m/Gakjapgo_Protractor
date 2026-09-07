@@ -1,0 +1,101 @@
+/* 격자가 놓일 영역. 격자 크기를 이 영역 기준(100cqw/100cqh)으로 계산하려고
+   컨테이너로 잡는다. 패딩도 여기 둬야 계산에 쓰는 cq 단위가 안쪽 여백을 뺀 값이 된다. */
+.grid-viewport {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  padding: var(--gak-space-4);
+  container-type: size;
+}
+
+/* 페이지 넘김 화살표. 격자 위에 얹지 않고 좌우 여백에 띄운다 —
+   타일 위에 겹치면 자세 신호등·이름표와 자리를 다툰다. */
+.page-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: var(--gak-z-badge);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-surface);
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+  box-shadow: var(--gak-shadow-sm);
+  transition:
+    border-color var(--gak-transition-fast),
+    color var(--gak-transition-fast);
+}
+
+.page-btn[data-side='left'] {
+  left: var(--gak-space-2);
+}
+
+.page-btn[data-side='right'] {
+  right: var(--gak-space-2);
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: var(--gak-primary);
+  color: var(--gak-primary);
+}
+
+.page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 지금 몇 페이지인지 · 다른 참여자가 몇 명인지 */
+.page-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: var(--gak-space-2);
+  transform: translateX(-50%);
+  z-index: var(--gak-z-badge);
+  margin: 0;
+  padding: 2px var(--gak-space-3);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-overlay);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-xs);
+  white-space: nowrap;
+}
+
+.video-grid {
+  --tile-gap: var(--gak-space-4);
+  /* 타일 사이 간격의 총합. 비율 계산에서는 빼 두고 마지막에 다시 더한다. */
+  --gaps-x: calc((var(--grid-columns) - 1) * var(--tile-gap));
+  --gaps-y: calc((var(--grid-rows) - 1) * var(--tile-gap));
+
+  /* 타일만 놓고 봤을 때의 가로 폭.
+     가로에 맞추면 넘칠 수 있고 세로에 맞춰도 마찬가지라, 먼저 부딪히는 쪽을 택한다.
+     이 한 줄이 "인원수가 바뀌어도 타일 비율은 그대로"를 만든다. */
+  --tiles-width: min(
+    calc(100cqw - var(--gaps-x)),
+    calc((100cqh - var(--gaps-y)) * var(--grid-aspect))
+  );
+
+  display: grid;
+  /* 타일 하나가 단위 열 2개를 차지한다. 덜 찬 줄을 반 칸 밀어 정확히 가운데 두려면
+     칸을 타일 단위보다 잘게 쪼개야 한다(3명일 때 아래 타일이 가운데 오는 경우). */
+  grid-template-columns: repeat(calc(var(--grid-columns) * 2), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--grid-rows), minmax(0, 1fr));
+  gap: var(--tile-gap);
+
+  width: calc(var(--tiles-width) + var(--gaps-x));
+  height: calc(var(--tiles-width) * var(--grid-aspect-inverse) + var(--gaps-y));
+  /* 남는 공간은 위아래·좌우 여백으로 흘린다 */
+  margin: auto;
+}
+
+/* 내 타일 위에 얹는 것(자세 신호등)이 이 칸을 기준으로 자리를 잡는다 */
+.grid-cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}

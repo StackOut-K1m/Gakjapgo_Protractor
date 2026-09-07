@@ -1,0 +1,323 @@
+/* src/pages/StudyListPage.module.css */
+
+.page {
+  max-width: var(--gak-content-width);
+  margin: 0 auto;
+  padding: var(--gak-space-6) var(--gak-content-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-5);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gak-space-4);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--gak-fs-title);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.sub {
+  margin: var(--gak-space-1) 0 0;
+  font-size: var(--gak-fs-md);
+  color: var(--gak-text-secondary);
+}
+
+.create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-1);
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity var(--gak-transition-fast);
+}
+
+.create-btn:hover {
+  opacity: 0.85;
+}
+
+/* ── 검색·필터 카드 ── */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-3);
+  padding: var(--gak-space-4);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+}
+
+/* 검색창 + 정렬. 좁아지면 정렬이 아래로 내려간다. */
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  /* 남는 폭을 검색창이 다 가져가서 정렬이 오른쪽 끝에 붙는다 */
+  flex: 1;
+  min-width: 240px;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--gak-space-3);
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--gak-text-muted);
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px var(--gak-space-3) 10px 40px;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text);
+  background: var(--gak-surface);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--gak-primary);
+}
+
+/* 정렬이 위 줄로 올라가서 '모집 중만 보기'만 남는다. 있던 자리(오른쪽)를 지킨다. */
+.filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--gak-space-4);
+  flex-wrap: wrap;
+}
+
+.sort-field {
+  display: inline-flex;
+  /* MyPage.css 가 모듈이 아닌 전역 CSS인데 `label { flex-direction: column }` 을 태그째
+     걸어 둔다. 여기서 방향을 안 정하면 그 규칙이 이겨서 "정렬:" 이 셀렉트 위로 올라간다.
+     남의 화면까지 흔들지 않으려고 이 줄로 막아 둔다 — 전역 규칙 자체는 따로 정리해야 한다. */
+  flex-direction: row;
+  align-items: center;
+  gap: var(--gak-space-2);
+}
+
+.sort-label {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+}
+
+.sort-select {
+  padding: 8px 10px;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-surface);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text);
+  cursor: pointer;
+}
+
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gak-space-2);
+}
+
+.category-chip {
+  padding: 6px 14px;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-surface);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--gak-transition-fast),
+    color var(--gak-transition-fast);
+}
+
+.category-chip:hover {
+  border-color: var(--gak-primary);
+  color: var(--gak-text);
+}
+
+.category-chip[data-active='true'] {
+  background: var(--gak-primary);
+  border-color: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  font-weight: var(--gak-fw-medium);
+}
+
+/* ── 카드 그리드 ── */
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--gak-space-5) var(--gak-space-4);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-2);
+  min-width: 0;
+}
+
+.card-thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-bg);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color var(--gak-transition-fast),
+    transform var(--gak-transition-fast);
+}
+
+.card-thumb:hover {
+  border-color: var(--gak-primary);
+  transform: translateY(-2px);
+}
+
+.card-thumb-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-badge {
+  position: absolute;
+  top: var(--gak-space-2);
+  left: var(--gak-space-2);
+  padding: 4px 10px;
+  border-radius: var(--gak-radius-sm);
+  /* 방 상세(.thumb-badge)와 같은 반투명 검정. 썸네일 색이 무엇이든 글자가 읽힌다. */
+  background: var(--gak-overlay);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.card-lock {
+  position: absolute;
+  top: var(--gak-space-2);
+  right: var(--gak-space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-1);
+  padding: 4px 10px;
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-overlay);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-medium);
+}
+
+
+.card-title {
+  margin: 0;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-medium);
+  color: var(--gak-text);
+  word-break: keep-all;
+}
+
+.card-tags {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gak-space-2);
+}
+
+.card-tag {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-primary);
+}
+
+.card-category {
+  margin: 0;
+  padding-top: var(--gak-space-2);
+  border-top: 1px solid var(--gak-surface-alt);
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+
+/* ── 상태 문구·페이지네이션 ── */
+
+.state {
+  padding: var(--gak-space-6) 0;
+  text-align: center;
+  color: var(--gak-text-secondary);
+  font-size: var(--gak-fs-md);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.page-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 var(--gak-space-2);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: var(--gak-primary);
+  color: var(--gak-primary);
+}
+
+.page-btn[data-active='true'] {
+  background: var(--gak-primary);
+  border-color: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  font-weight: var(--gak-fw-bold);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .head {
+    flex-direction: column;
+  }
+
+  .filter-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

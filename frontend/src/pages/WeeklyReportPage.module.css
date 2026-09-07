@@ -1,0 +1,504 @@
+.page {
+  max-width: var(--gak-content-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* ── 화면 머리 ─────────────────────────────────────────────── */
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--gak-space-5);
+  flex-wrap: wrap;
+}
+
+.page-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.kicker {
+  font-family: var(--gak-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  color: var(--gak-text-muted);
+}
+
+.page-title {
+  margin: 0;
+  font-size: 40px;
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.038em;
+  line-height: 1.12;
+}
+
+.page-title-period {
+  font-size: 28px;
+  color: var(--gak-text-muted);
+}
+
+.page-desc {
+  margin: 0;
+  font-size: var(--gak-fs-md);
+  color: var(--gak-text-secondary);
+}
+
+.page-head-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn-ghost {
+  padding: 12px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--gak-radius-md);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13.5px;
+  font-weight: var(--gak-fw-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color var(--gak-transition-fast),
+    color var(--gak-transition-fast);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: var(--gak-text);
+}
+
+.btn-ghost:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.state {
+  margin: 0;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text-secondary);
+}
+
+.state[data-error='true'] {
+  color: var(--gak-status-danger);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ── 카드 공통 ─────────────────────────────────────────────── */
+
+.card {
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-xl);
+  background: var(--gak-surface);
+  padding: 24px 26px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  /* grid 자식이 내용 폭에 밀려 칸을 넘기지 않게 한다 */
+  min-width: 0;
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gak-space-4);
+  flex-wrap: wrap;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.02em;
+}
+
+.card-unit {
+  font-size: 13px;
+  font-weight: var(--gak-fw-medium);
+  color: var(--gak-text-muted);
+}
+
+.card-note {
+  margin: 0;
+  font-family: var(--gak-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--gak-text-muted);
+}
+
+.card-footnote {
+  padding-top: 14px;
+  border-top: 1px solid var(--gak-border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card-footnote-lead {
+  font-size: 13.5px;
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-accent);
+}
+
+.card-footnote-sub {
+  font-size: 12.5px;
+  color: var(--gak-text-secondary);
+}
+
+/*
+ * 두 칸 배치. 좁아지면 한 줄로 떨어진다.
+ * minmax(0, …) 로 시작하지 않으면 안쪽 내용(긴 문장·막대)이 칸을 밀어 가로 스크롤이 생긴다.
+ */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
+/* ── KPI ───────────────────────────────────────────────────── */
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 16px;
+}
+
+.kpi {
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kpi-label {
+  font-size: 12.5px;
+  color: var(--gak-text-secondary);
+  white-space: nowrap;
+}
+
+.kpi-value {
+  font-family: var(--gak-font-num);
+  font-size: 30px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.kpi-value[data-tone='ok'] {
+  color: var(--gak-accent);
+}
+.kpi-value[data-tone='warn'] {
+  color: var(--gak-status-warning);
+}
+.kpi-value[data-tone='danger'] {
+  color: var(--gak-status-danger);
+}
+
+.kpi-delta {
+  font-size: 12px;
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-secondary);
+}
+
+.kpi-delta[data-good='true'] {
+  color: var(--gak-accent);
+}
+
+/* ── 세로 막대 그래프 ──────────────────────────────────────── */
+
+.bars {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+
+/*
+ * 측정 구간. 높이가 고정이고 이 안에는 막대만 있다.
+ *
+ * 숫자·요일 라벨을 이 안에 같이 두면 라벨이 차지한 만큼 막대가 짧아져서, 값이 두 배인 막대가
+ * 두 배로 보이지 않는다. 그래서 라벨은 이 상자 바깥(아래)에 둔다.
+ */
+.bar-track {
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.bar {
+  border-radius: 5px 5px 0 0;
+  background: rgba(138, 201, 38, 0.45);
+  /* 값이 0에 가까워도 칸이 있다는 것은 보이게 한다 */
+  min-height: 3px;
+  transition: height 0.35s;
+}
+
+.bar[data-tone='ratio'] {
+  background: rgba(255, 202, 58, 0.55);
+}
+
+/* 기록이 없는 날. 색을 빼서 '0시간'이 아니라 '기록 없음'으로 읽히게 한다 */
+.bar[data-empty='true'],
+.bar[data-tone='ratio'][data-empty='true'] {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.bar-value {
+  font-family: var(--gak-font-mono);
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.bar-value[data-empty='true'] {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.bar-label {
+  font-size: 12.5px;
+  font-weight: var(--gak-fw-bold);
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+}
+
+/* ── 시간대 가로 막대 ──────────────────────────────────────── */
+
+.hour-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hour-row {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) 62px;
+  gap: 12px;
+  align-items: center;
+}
+
+.hour-label {
+  font-family: var(--gak-font-mono);
+  font-size: 12px;
+  color: var(--gak-text-secondary);
+  white-space: nowrap;
+}
+
+.hour-track {
+  height: 9px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.hour-fill {
+  height: 100%;
+  background: rgba(138, 201, 38, 0.45);
+  transition: width 0.4s;
+}
+
+.hour-fill[data-peak='true'] {
+  background: var(--gak-accent);
+}
+
+.hour-value {
+  font-family: var(--gak-font-mono);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.hour-value[data-peak='true'] {
+  color: var(--gak-accent);
+}
+
+/* ── 도넛 ──────────────────────────────────────────────────── */
+
+.donut-body {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.donut {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  flex: 0 0 auto;
+}
+
+/* 12시 방향에서 시작해 시계 방향으로 감긴다. SVG 원은 3시 방향이 0도라 90도 돌린다 */
+.donut svg {
+  transform: rotate(-90deg);
+}
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.donut-center-label {
+  font-size: 11.5px;
+  color: var(--gak-text-secondary);
+}
+
+.donut-center-value {
+  font-family: var(--gak-font-num);
+  font-size: 26px;
+  line-height: 1;
+}
+
+.legends {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
+
+.legend-label {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.78);
+  flex: 1;
+  min-width: 0;
+}
+
+.legend-value {
+  font-family: var(--gak-font-mono);
+  font-size: 12.5px;
+  color: var(--gak-text-secondary);
+  white-space: nowrap;
+}
+
+/* ── 지표 설명 ─────────────────────────────────────────────── */
+
+.glossary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+  gap: 14px 32px;
+}
+
+.glossary-row {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--gak-border-soft);
+}
+
+.glossary-term {
+  flex: 0 0 130px;
+  font-size: 13.5px;
+  font-weight: var(--gak-fw-black);
+  color: var(--gak-accent);
+}
+
+.glossary-desc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+/* ── 다운로드 ──────────────────────────────────────────────── */
+
+.download-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-3);
+  padding-top: 6px;
+}
+
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 17px 38px;
+  border: none;
+  border-radius: 10px;
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.download-btn:hover:not(:disabled) {
+  background: var(--gak-primary-hover);
+}
+
+.download-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.download-msg {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+}
+
+.download-msg[data-error='true'] {
+  color: var(--gak-status-danger);
+}
+
+/* 좁은 화면에서는 제목이 화면을 다 먹는다 */
+@media (max-width: 720px) {
+  .page-title {
+    font-size: 30px;
+  }
+  .page-title-period {
+    font-size: 20px;
+  }
+  .bars {
+    gap: 6px;
+  }
+}

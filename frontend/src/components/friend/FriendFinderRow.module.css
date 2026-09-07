@@ -1,0 +1,90 @@
+/* 친구 찾기 창의 한 줄 — 검색 결과·받은 요청 공용 */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 4px;
+}
+
+.avatar {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-medium);
+  color: var(--gak-text);
+}
+
+.actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+}
+
+.action-btn {
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--gak-radius-sm);
+  font-family: inherit;
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.action-btn[data-variant='primary'] {
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.action-btn[data-variant='primary']:hover {
+  background: var(--gak-primary-hover);
+}
+
+.action-btn[data-variant='quiet'] {
+  border-color: var(--gak-border);
+  background: none;
+  color: var(--gak-text-secondary);
+}
+
+.action-btn[data-variant='quiet']:hover {
+  background: var(--gak-surface-alt);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* 신청 대기 중·이미 친구 — 누를 수 없는 상태라 버튼처럼 보이지 않게 한다 */
+.state {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+  white-space: nowrap;
+}

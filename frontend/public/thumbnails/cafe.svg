@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="카페">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#b45309"/>
+      <stop offset="1" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="win" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fcd34d" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fcd34d" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="360" fill="url(#bg)"/>
+
+  <!-- 창으로 들어오는 햇빛 -->
+  <path d="M400 0 H640 V300 L400 210 Z" fill="url(#win)"/>
+  <rect x="452" y="36" width="150" height="150" rx="8" fill="#fef3c7" opacity="0.22"/>
+  <line x1="527" y1="36" x2="527" y2="186" stroke="#78350f" stroke-width="6" opacity="0.35"/>
+  <line x1="452" y1="111" x2="602" y2="111" stroke="#78350f" stroke-width="6" opacity="0.35"/>
+
+  <!-- 테이블 -->
+  <rect x="0" y="268" width="640" height="92" fill="#3f2410" opacity="0.85"/>
+  <rect x="0" y="262" width="640" height="12" rx="6" fill="#8b5a2b"/>
+
+  <!-- 김 -->
+  <g stroke="#fde68a" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.65">
+    <path d="M150 196 c-12 -16 8 -28 -4 -46"/>
+    <path d="M182 190 c-12 -16 8 -30 -4 -48"/>
+  </g>
+
+  <!-- 커피잔 -->
+  <path d="M104 214 h116 v34 a30 30 0 0 1 -30 30 h-56 a30 30 0 0 1 -30 -30 z" fill="#fffbeb"/>
+  <rect x="104" y="214" width="116" height="14" fill="#7c2d12" opacity="0.25"/>
+  <path d="M220 226 h16 a20 20 0 0 1 0 40 h-16" fill="none" stroke="#fffbeb" stroke-width="12"/>
+  <ellipse cx="162" cy="286" rx="86" ry="10" fill="#fffbeb" opacity="0.35"/>
+
+  <!-- 노트북 -->
+  <path d="M286 200 h150 v62 h-150 z" fill="#e7e5e4" opacity="0.9"/>
+  <path d="M276 262 h170 l12 14 h-194 z" fill="#d6d3d1"/>
+  <rect x="298" y="212" width="126" height="40" fill="#57534e" opacity="0.55"/>
+
+</svg>

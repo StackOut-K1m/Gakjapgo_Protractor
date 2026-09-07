@@ -1,0 +1,538 @@
+/*
+ * 스트레칭 화면의 강조색은 노랑이다.
+ *
+ * 화상 타일 테두리와 같은 색을 쓴다 — 다른 참여자 화면에서 이 사람 타일이 노랑으로 바뀌므로,
+ * 본인이 보는 화면도 같은 색이어야 "지금 내가 남들에게 어떻게 보이는지"가 이어진다.
+ *
+ * <b>완료를 뜻하는 것만 초록으로 남긴다</b>(--gak-primary): 마치고 누르는 '스터디로 돌아가기'
+ * 버튼과 완료 체크 표시. 진행 중과 완료가 같은 색이면 끝났는지 아닌지가 구분되지 않는다.
+ */
+/* ── 모달 껍데기 ── */
+.stretching-overlay {
+  --stretch-accent: var(--gak-status-warning);
+  --stretch-accent-soft: rgba(255, 202, 58, 0.14);
+
+  position: fixed;
+  inset: 0;
+  z-index: var(--gak-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gak-space-5) var(--gak-space-4);
+  background: rgba(29, 41, 57, 0.72);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
+}
+
+.overlay-inner {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-5);
+  margin: auto;
+}
+
+/* ── 상단 배너 ── */
+.overlay-banner {
+  margin: 0;
+  padding: var(--gak-space-4) var(--gak-space-5);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+  border-radius: var(--gak-radius-md);
+  background: rgba(255, 202, 58, 0.14);
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-status-warning);
+  word-break: keep-all;
+}
+
+.overlay-banner[data-tone='danger'] {
+  background: rgba(240, 70, 82, 0.14);
+  color: var(--gak-status-danger);
+}
+
+/* ── 카드 ── */
+.panel {
+  width: 100%;
+  padding: var(--gak-space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  box-shadow: var(--gak-shadow-md);
+}
+
+/* 진행 중인 동안 카드 테두리도 같은 노랑으로. 화상 타일에서 이 사람이 노랑으로 보이는 것과 맞춘다 */
+.panel[data-phase='motion'],
+.panel[data-phase='choosing'] {
+  border-color: var(--stretch-accent);
+}
+
+.panel[data-phase='penalty'] {
+  border-color: var(--gak-status-danger);
+}
+
+.panel-badge {
+  padding: var(--gak-space-1) var(--gak-space-4);
+  border-radius: var(--gak-radius-full);
+  background: var(--stretch-accent-soft);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-status-warning);
+}
+
+/* 완료했을 때만 초록. 여기서 색이 바뀌는 것이 "끝났다"는 신호다 */
+.panel-badge[data-phase='complete'] {
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+}
+
+.panel-badge[data-phase='failed'] {
+  background: rgba(240, 70, 82, 0.14);
+  color: var(--gak-status-danger);
+}
+
+.panel-title {
+  margin: 0;
+  font-size: var(--gak-fs-title);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  text-align: center;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+/* ── 동작 선택 화면 ── */
+.choose-hint {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  text-align: center;
+  word-break: keep-all;
+}
+
+.choice-list {
+  display: grid;
+  /* 등록된 동작이 6~7개라 두 줄로 놓인다. 한 줄로 세우면 스크롤이 생긴다 */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--gak-space-3);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.choice-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  padding: var(--gak-space-4);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--gak-transition-base),
+    background var(--gak-transition-base);
+}
+
+.choice-item:hover {
+  border-color: var(--stretch-accent);
+  background: var(--gak-bg-muted, #fafafa);
+}
+
+.choice-name {
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.choice-guide {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  word-break: keep-all;
+}
+
+.choice-hold {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-text-muted);
+}
+
+.panel-desc {
+  margin: 0;
+  font-size: var(--gak-fs-md);
+  color: var(--gak-text-secondary);
+  text-align: center;
+  word-break: keep-all;
+}
+
+/* ── 비디오 무대 ── */
+.stage {
+  position: relative;
+  width: 100%;
+  margin-top: var(--gak-space-2);
+  aspect-ratio: 16 / 10;
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface-dark);
+  overflow: hidden;
+}
+
+.stage-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  transition: filter var(--gak-transition-base);
+}
+
+.stage[data-phase='failed'] .stage-video,
+.stage[data-phase='complete'] .stage-video {
+  filter: brightness(0.6);
+}
+
+.stage-tag,
+.stage-quality {
+  position: absolute;
+  top: var(--gak-space-3);
+  z-index: var(--gak-z-badge);
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  letter-spacing: 0.06em;
+  color: var(--gak-text-inverse);
+}
+
+.stage-tag {
+  left: var(--gak-space-3);
+}
+
+.stage-quality {
+  right: var(--gak-space-3);
+  opacity: 0.7;
+}
+
+.stage-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-live);
+}
+
+.stage[data-phase='complete'] .stage-dot {
+  background: var(--gak-status-ok);
+}
+
+/* 가이드 원 */
+.guide-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--gak-z-overlay);
+  width: 42%;
+  aspect-ratio: 1;
+  /* 동작을 따라 하는 중에만 보이는 원이라 진행색(노랑)을 쓴다 */
+  border: 2px solid var(--stretch-accent);
+  border-radius: var(--gak-radius-full);
+  animation: guide-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes guide-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.04);
+  }
+}
+
+/* 결과 마크 */
+.result-mark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--gak-z-badge);
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--gak-radius-full);
+  color: var(--gak-text-inverse);
+}
+
+.result-mark svg {
+  width: 48px;
+  height: 48px;
+}
+
+.result-mark[data-tone='ok'] {
+  background: var(--gak-primary);
+}
+
+.result-mark[data-tone='danger'] {
+  background: var(--gak-status-danger);
+}
+
+.stage-caption {
+  position: absolute;
+  bottom: var(--gak-space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--gak-z-badge);
+  margin: 0;
+  padding: var(--gak-space-2) var(--gak-space-4);
+  max-width: calc(100% - var(--gak-space-6));
+  border-radius: var(--gak-radius-full);
+  background: rgba(16, 24, 40, 0.85);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-inverse);
+  text-align: center;
+  word-break: keep-all;
+}
+
+/* ── 단계 목록 ── */
+.step-list {
+  margin: var(--gak-space-2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--gak-space-2) var(--gak-space-5);
+  list-style: none;
+}
+
+.step-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+  white-space: nowrap;
+}
+
+/* 한 단계를 통과한 표시. 아직 루틴 전체가 끝난 것은 아니라 진행색(노랑)을 쓴다 */
+.step-item[data-state='done'] {
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-status-warning);
+}
+
+/* 루틴을 다 마치면 나머지와 같이 초록으로 넘어간다. 여기만 노랑으로 남으면 완료 화면에서
+   단계 목록만 아직 진행 중인 것처럼 읽힌다 */
+.panel[data-phase='complete'] .step-item[data-state='done'] {
+  color: var(--gak-primary);
+}
+
+.step-item[data-state='active'] {
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.step-item[data-state='failed'] {
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-status-danger);
+}
+
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--gak-radius-full);
+  background: currentColor;
+}
+
+/* ── 진행률 ── */
+.progress-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-4);
+}
+
+.progress-label {
+  flex-shrink: 0;
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-text);
+}
+
+.progress-track {
+  flex: 1;
+  min-width: 0;
+  height: 8px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-bg);
+  overflow: hidden;
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--stretch-accent);
+  transition:
+    width var(--gak-transition-base),
+    background-color var(--gak-transition-base);
+}
+
+/* 다 채워졌을 때 초록으로 바뀐다 — 막대가 끝까지 간 것과 색이 함께 알린다 */
+.progress-fill[data-phase='complete'] {
+  background: var(--gak-primary);
+}
+
+.progress-fill[data-phase='failed'] {
+  background: var(--gak-status-danger);
+}
+
+.panel-hint {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+  text-align: center;
+  word-break: keep-all;
+}
+
+.attempts-left {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-text-secondary);
+}
+
+/* ── 액션 ── */
+.panel-actions {
+  width: 100%;
+  margin-top: var(--gak-space-3);
+  padding-top: var(--gak-space-4);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gak-space-3);
+  border-top: 1px solid var(--gak-border);
+}
+
+.panel-actions[data-columns='2'] {
+  grid-template-columns: 1fr 1fr;
+}
+
+.primary-btn,
+.ghost-btn {
+  padding: var(--gak-space-4);
+  border-radius: var(--gak-radius-md);
+  font-family: inherit;
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+  transition:
+    background-color var(--gak-transition-fast),
+    border-color var(--gak-transition-fast);
+}
+
+.primary-btn {
+  border: none;
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.primary-btn:hover:not(:disabled) {
+  background: var(--gak-primary-hover);
+}
+
+.primary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ghost-btn {
+  border: 1px solid var(--gak-border);
+  background: var(--gak-surface);
+  color: var(--gak-text-secondary);
+}
+
+.ghost-btn:hover {
+  border-color: var(--gak-status-danger);
+  color: var(--gak-status-danger);
+}
+
+/* ── 패널티 ── */
+.penalty-icon {
+  width: 88px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--gak-radius-full);
+  background: rgba(240, 70, 82, 0.14);
+  color: var(--gak-status-danger);
+}
+
+.penalty-box {
+  width: 100%;
+  margin-top: var(--gak-space-2);
+  padding: var(--gak-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-bg);
+}
+
+.penalty-box-title {
+  margin: 0;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.penalty-box-text {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-secondary);
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+.penalty-emphasis {
+  color: var(--gak-status-danger);
+}
+
+.penalty-countdown {
+  margin: var(--gak-space-3) 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-status-warning);
+}
+
+.countdown-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-status-warning);
+}
+
+@media (max-width: 640px) {
+  .panel-actions[data-columns='2'] {
+    grid-template-columns: 1fr;
+  }
+}

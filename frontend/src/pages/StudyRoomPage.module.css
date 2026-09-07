@@ -1,0 +1,183 @@
+.study-room-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--gak-bg);
+  overflow: hidden;
+}
+
+/* ── 상단 헤더 ── */
+.room-header {
+  flex-shrink: 0;
+  height: var(--gak-header-height);
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+  padding: 0 var(--gak-space-5);
+  border-bottom: 1px solid var(--gak-border);
+  background: var(--gak-surface);
+}
+
+.live-badge {
+  padding: 2px var(--gak-space-2);
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-live);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  letter-spacing: 0.06em;
+  color: var(--gak-text-inverse);
+}
+
+.room-title {
+  margin: 0;
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  white-space: nowrap;
+}
+
+.header-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--gak-border);
+}
+
+.participant-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-3);
+}
+
+.elapsed {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: var(--gak-space-2) var(--gak-space-3);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-text);
+  white-space: nowrap;
+}
+
+.elapsed-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-status-ok);
+}
+
+/* 순공 시간이 멈춘 상태 — 쉬는 시간·스트레칭 구간이거나, 자리비움·졸음이거나.
+   표시가 없으면 시계가 멈춘 것이 고장으로 보인다.
+
+   값까지 보는 [data-paused='true'] 를 쓰는 이유는, React 가 data-* 속성에 false 를 넣으면
+   속성을 지우지 않고 data-paused="false" 로 렌더하기 때문이다. 값을 안 보는 [data-paused] 로
+   두면 멈추지 않은 동안에도 계속 경고색이 된다. */
+.elapsed[data-paused='true'] {
+  border-color: var(--gak-status-warning);
+}
+
+.elapsed[data-paused='true'] .elapsed-dot {
+  background: var(--gak-status-warning);
+}
+
+.elapsed-label {
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-normal);
+  color: var(--gak-text-secondary);
+}
+
+/* 총 시간. 순공 시간과 같은 모양을 쓰되 테두리를 빼고 옅게 둔다 —
+   나란히 놓고 똑같이 그리면 어느 쪽이 주인공인지 헷갈린다. */
+.total-elapsed {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: var(--gak-space-2) var(--gak-space-3);
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-text-secondary);
+  white-space: nowrap;
+}
+
+.total-elapsed-label {
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-normal);
+  color: var(--gak-text-muted);
+}
+
+/* 다음 구간까지 남은 시간. 순공 시간 오른쪽에 나란히 붙고, 구분선으로 갈라 둔다.
+   본 숫자보다 옅게 둬서 어느 쪽이 주인공인지 헷갈리지 않게 한다. */
+.next-phase {
+  padding-left: var(--gak-space-3);
+  border-left: 1px solid var(--gak-border);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-normal);
+  color: var(--gak-text-secondary);
+}
+
+.leave-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: var(--gak-space-3) var(--gak-space-4);
+  border: none;
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-status-danger);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-inverse);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter var(--gak-transition-fast);
+}
+
+.leave-btn:hover {
+  filter: brightness(0.92);
+}
+
+/* ── 본문 ── */
+.room-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* position: relative — 실시간 자세 신호등(PostureLights)이 이 영역 기준으로 얹힌다 */
+.room-stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  background: var(--gak-surface);
+}
+
+/* 상단 오렌지 배너 — 지금은 쓰는 곳이 없다.
+   권한 차단·작은 창 실패·배경 효과 상태를 여기로 알렸는데, 영상 자리와 컨트롤바가 같은
+   내용을 이미 보여 주고 있어 화면 위쪽에 경고 줄만 쌓였다. 규칙은 남겨 둔다 — 다시 쓸
+   일이 생기면 클래스만 붙이면 된다. */
+.device-notice {
+  flex-shrink: 0;
+  margin: 0;
+  padding: var(--gak-space-3) var(--gak-space-5);
+  border-bottom: 1px solid var(--gak-border);
+  background: var(--gak-status-warning);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-sm);
+  text-align: center;
+}

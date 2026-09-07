@@ -1,0 +1,597 @@
+.calendar-page {
+  max-width: var(--gak-content-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* ── 화면 머리 ─────────────────────────────────────────────── */
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--gak-space-5);
+  flex-wrap: wrap;
+}
+
+.page-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 40px;
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.038em;
+  line-height: 1.12;
+}
+
+.page-desc {
+  margin: 0;
+  font-size: var(--gak-fs-md);
+  color: var(--gak-text-secondary);
+}
+
+.add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-btn:hover {
+  background: var(--gak-primary-hover);
+}
+
+/*
+ * 달력과 사이드. 좁아지면 사이드가 아래로 떨어진다.
+ * 왼쪽을 minmax(0,1fr) 로 두지 않으면 42칸 안의 일정 제목이 칸을 밀어 그리드가 어긋난다.
+ */
+.calendar-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1080px) {
+  .calendar-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── 달력 ──────────────────────────────────────────────────── */
+
+.calendar-card {
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-xl);
+  background: var(--gak-surface);
+  padding: 24px 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.month-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--gak-radius-md);
+  background: transparent;
+  color: var(--gak-text);
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color var(--gak-transition-fast);
+}
+
+.nav-btn:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.month-label {
+  margin: 0;
+  min-width: 150px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.02em;
+}
+
+.today-btn {
+  margin-left: 6px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--gak-radius-md);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13.5px;
+  font-weight: var(--gak-fw-medium);
+  cursor: pointer;
+  transition: border-color var(--gak-transition-fast);
+}
+
+.today-btn:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: var(--gak-text);
+}
+
+.loading {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+}
+
+.error {
+  margin: 0;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-status-danger);
+}
+
+/*
+ * 요일 줄과 날짜 격자는 같은 열 정의를 쓴다.
+ * minmax(0, 1fr) 이어야 한다 — 1fr 만 쓰면 일정이 있는 칸의 최소 너비 때문에 열 폭이 어긋난다.
+ */
+.weekday-row,
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.weekday {
+  padding: 8px 0;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text-secondary);
+}
+
+.weekday[data-weekday='0'] {
+  color: var(--gak-status-danger);
+}
+
+.weekday[data-weekday='6'] {
+  color: var(--gak-blue);
+}
+
+/*
+ * 하루 칸.
+ *
+ * 배경은 --load(0~1, 그 달 최대 학습량 대비)에 비례해 초록으로 물든다. 숫자를 읽지 않아도
+ * 어느 주에 몰아 했는지가 색으로 보인다.
+ */
+.cell {
+  --load: 0;
+
+  min-height: 104px;
+  padding: 10px;
+  border: 1px solid var(--gak-border-soft);
+  border-radius: 10px;
+  background: rgb(138 201 38 / calc(var(--load) * 13%));
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+/* 앞뒤 달 날짜 — 있지만 이 달의 일이 아니다 */
+.cell[data-in-month='false'] {
+  background: rgba(255, 255, 255, 0.015);
+  opacity: 0.55;
+}
+
+.cell[data-selected='true'] {
+  border-color: rgba(138, 201, 38, 0.7);
+  background: rgba(138, 201, 38, 0.07);
+}
+
+.cell-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.day-num {
+  padding: 3px 7px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--gak-font-mono);
+  font-size: 12.5px;
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+}
+
+.cell[data-weekday='0'] .day-num {
+  color: var(--gak-status-danger);
+}
+
+.cell[data-weekday='6'] .day-num {
+  color: var(--gak-blue);
+}
+
+/* 오늘은 채운 배지로. 선택 표시(테두리)와 겹쳐도 서로 구분된다 */
+.cell[data-today='true'] .day-num {
+  background: var(--gak-accent);
+  color: var(--gak-bg);
+}
+
+.day-hours {
+  font-family: var(--gak-font-mono);
+  font-size: 10.5px;
+  color: var(--gak-text-muted);
+}
+
+.chips {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  /* 제목을 자르려면 flex 자식이 내용보다 작아질 수 있어야 한다 */
+  min-width: 0;
+  text-align: left;
+}
+
+.chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.chip-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11.5px;
+  font-weight: var(--gak-fw-medium);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.chip-dday,
+.dday-badge {
+  flex: 0 0 auto;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--gak-font-mono);
+  font-weight: var(--gak-fw-bold);
+  white-space: nowrap;
+}
+
+.chip-dday {
+  padding: 2px 5px;
+  font-size: 9.5px;
+}
+
+/* 당일은 초록으로 — 목록에서 가장 먼저 눈에 들어와야 하는 한 줄이다 */
+.chip-dday[data-today='true'],
+.dday-badge[data-today='true'] {
+  background: rgba(138, 201, 38, 0.2);
+  color: var(--gak-accent);
+}
+
+.more {
+  font-size: 10.5px;
+  color: var(--gak-text-muted);
+  padding-left: 6px;
+}
+
+.load-track {
+  margin-top: auto;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.load-fill {
+  height: 100%;
+  background: var(--gak-accent);
+}
+
+/* ── 사이드 ────────────────────────────────────────────────── */
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  /* 달력이 길어도 상세가 화면에 남는다. 헤더(64) + 여유 */
+  position: sticky;
+  top: 88px;
+}
+
+@media (max-width: 1080px) {
+  .side {
+    position: static;
+  }
+}
+
+.side-card,
+.detail-card {
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-xl);
+  background: var(--gak-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px 24px 26px;
+}
+
+/* 선택한 날 카드만 위에 초록 띠를 둘러 '지금 보고 있는 것'임을 표시한다 */
+.detail-card {
+  position: relative;
+  padding-top: 26px;
+  overflow: hidden;
+}
+
+.detail-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: var(--gak-accent);
+}
+
+.detail-kicker {
+  font-family: var(--gak-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  color: var(--gak-text-secondary);
+}
+
+.detail-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.03em;
+}
+
+.detail-schedules {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.detail-schedule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 13px;
+  border: 1px solid var(--gak-border);
+  border-radius: 9px;
+  background: var(--gak-surface-sunken);
+  cursor: pointer;
+  text-align: left;
+}
+
+.detail-schedule:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.detail-schedule-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.detail-empty {
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--gak-text-secondary);
+}
+
+.detail-rows {
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--gak-border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+}
+
+.detail-row dt {
+  color: var(--gak-text-secondary);
+  white-space: nowrap;
+}
+
+.detail-row dd {
+  margin: 0;
+  font-weight: var(--gak-fw-bold);
+  color: rgba(255, 255, 255, 0.85);
+  text-align: right;
+  /* 방 이름이 길면 줄바꿈된다 — 잘라내면 어느 방인지 알 수 없다 */
+  min-width: 0;
+  word-break: break-word;
+}
+
+.detail-row dd[data-tone='ok'] {
+  color: var(--gak-accent);
+}
+.detail-row dd[data-tone='warn'] {
+  color: var(--gak-status-warning);
+}
+.detail-row dd[data-tone='none'] {
+  color: var(--gak-text-muted);
+}
+
+.side-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: var(--gak-fw-black);
+  letter-spacing: -0.02em;
+}
+
+.side-empty {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--gak-text-secondary);
+}
+
+.dday-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dday-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid var(--gak-border);
+  border-radius: 10px;
+  background: var(--gak-surface-sunken);
+  cursor: pointer;
+  text-align: left;
+}
+
+.dday-item:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.dday-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.dday-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.dday-title {
+  font-size: 13.5px;
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dday-date {
+  font-family: var(--gak-font-mono);
+  font-size: 11px;
+  color: var(--gak-text-muted);
+}
+
+.dday-badge {
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.mini {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mini-value {
+  font-family: var(--gak-font-num);
+  font-size: 24px;
+  line-height: 1;
+  color: var(--gak-text);
+  /* 좁은 폭에서 숫자가 줄바꿈되면 카드가 들쭉날쭉해진다 */
+  white-space: nowrap;
+}
+
+.mini-value[data-tone='ok'] {
+  color: var(--gak-accent);
+}
+.mini-value[data-tone='warn'] {
+  color: var(--gak-status-warning);
+}
+
+.mini-label {
+  font-size: 12px;
+  color: var(--gak-text-secondary);
+}
+
+@media (max-width: 720px) {
+  .page-title {
+    font-size: 30px;
+  }
+  .cell {
+    min-height: 84px;
+    padding: 6px;
+  }
+  .weekday-row,
+  .grid {
+    gap: 4px;
+  }
+}

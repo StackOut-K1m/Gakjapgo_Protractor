@@ -1,0 +1,63 @@
+/* 큰 창을 덮는 판. 아래의 참여자 타일은 살아 있어야 하므로(음성) 지우지 않고 가린다.
+   그래서 배경이 반드시 불투명해야 한다 — 반투명이면 가린 화면이 비쳐 보여서
+   "전환됐다"가 아니라 "뭔가 겹쳐 있다"로 읽힌다.
+
+   덮는 범위는 .room-body 까지다. 헤더와 컨트롤바는 남겨 두어야 마이크·카메라·
+   '작은 창 끄기'·룸 나가기를 큰 창에서도 그대로 쓸 수 있다. */
+.parked-cover {
+  position: absolute;
+  inset: 0;
+  z-index: var(--gak-z-modal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gak-space-3);
+  padding: var(--gak-space-5);
+  background: var(--gak-surface);
+  text-align: center;
+}
+
+.parked-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+}
+
+.parked-title {
+  margin: 0;
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.parked-desc {
+  margin: 0;
+  max-width: 42ch;
+  font-size: var(--gak-fs-sm);
+  line-height: 1.6;
+  color: var(--gak-text-secondary);
+}
+
+.parked-btn {
+  margin-top: var(--gak-space-2);
+  padding: var(--gak-space-3) var(--gak-space-5);
+  border: none;
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  font-family: inherit;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+  transition: background-color var(--gak-transition-fast);
+}
+
+.parked-btn:hover {
+  background: var(--gak-primary-hover);
+}

@@ -1,0 +1,56 @@
+/* 컨트롤바 밖으로 넘겨야 해서 흐름 밖(fixed)에 띄운다. 좌표는 컴포넌트가 넣는다. */
+.menu {
+  position: fixed;
+  z-index: var(--gak-z-modal);
+  min-width: 172px;
+  padding: var(--gak-space-1);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.16);
+}
+
+.menu-item {
+  /* 체크 표시를 오른쪽 끝으로 밀어 둔다. 글자 바로 뒤에 붙이면 항목마다 다른 자리에
+     찍혀서, 지금 무엇이 골라져 있는지 훑어보기가 어렵다. */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-4);
+  padding: var(--gak-space-3);
+  border: none;
+  border-radius: var(--gak-radius-sm);
+  background: none;
+  font-family: inherit;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--gak-transition-fast),
+    color var(--gak-transition-fast);
+}
+
+.menu-item:hover,
+.menu-item:focus-visible,
+.menu-item:active {
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+  font-weight: var(--gak-fw-bold);
+  outline: none;
+}
+
+/* 고른 항목은 체크 표시만으로도 알 수 있지만, 색까지 주면 메뉴를 열자마자 보인다.
+   배경은 칠하지 않는다 — 마우스를 올린 항목과 구분이 안 된다. */
+.menu-item[data-selected] {
+  color: var(--gak-primary);
+  font-weight: var(--gak-fw-bold);
+}
+
+.menu-check {
+  flex: none;
+  font-size: var(--gak-fs-sm);
+}

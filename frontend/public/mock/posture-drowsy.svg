@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" width="640" height="220" role="img" aria-label="졸음 및 고개 떨굼 예시 이미지">
+  <defs>
+    <linearGradient id="bg-drowsy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FEF7C3"/>
+      <stop offset="1" stop-color="#FEE68A"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="220" fill="url(#bg-drowsy)"/>
+
+  <!-- 모니터 (안 보고 있다) -->
+  <rect x="456" y="52" width="120" height="72" rx="6" fill="#ffffff" opacity="0.6"/>
+  <rect x="508" y="124" width="16" height="14" fill="#ffffff" opacity="0.6"/>
+
+  <!-- 책상 -->
+  <rect x="272" y="158" width="352" height="8" rx="4" fill="#854D0E" opacity="0.3"/>
+
+  <!-- 앉은 옆모습: 등이 말리고 고개가 책상까지 떨어졌다 -->
+  <g stroke="#854D0E" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- 굽은 등 -->
+    <path d="M238 198 C 234 168, 240 136, 266 120"/>
+    <!-- 목 -->
+    <path d="M266 120 L298 130"/>
+    <!-- 책상에 얹은 팔 -->
+    <path d="M262 140 L300 156 L368 156"/>
+  </g>
+
+  <!-- 책상에 닿은 머리 -->
+  <circle cx="322" cy="131" r="27" fill="#854D0E"/>
+  <!-- 감은 눈 -->
+  <path d="M332 126 q 9 7 18 0" fill="none" stroke="#FEF7C3" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Zzz -->
+  <g font-family="'Noto Sans KR', sans-serif" font-weight="700" fill="#A16207">
+    <text x="366" y="106" font-size="20" opacity="0.85">z</text>
+    <text x="390" y="80" font-size="27" opacity="0.7">Z</text>
+    <text x="422" y="48" font-size="34" opacity="0.55">Z</text>
+  </g>
+
+  <text x="20" y="204" font-family="'Noto Sans KR', sans-serif" font-size="13" fill="#854D0E" opacity="0.65">예시 이미지</text>
+</svg>

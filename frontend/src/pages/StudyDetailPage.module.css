@@ -1,0 +1,411 @@
+/* src/pages/StudyDetailPage.module.css */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* ── 상단 헤더(흰 배경 풀블리드) ── */
+
+.hero {
+  background: var(--gak-surface);
+  border-bottom: 1px solid var(--gak-border);
+}
+
+.hero-inner {
+  max-width: var(--gak-content-width);
+  margin: 0 auto;
+  padding: var(--gak-space-6) var(--gak-content-padding);
+  display: grid;
+  grid-template-columns: minmax(280px, 440px) 1fr;
+  gap: var(--gak-space-6);
+  align-items: start;
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-bg);
+  overflow: hidden;
+}
+
+.thumb-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-badge {
+  position: absolute;
+  top: var(--gak-space-3);
+  left: var(--gak-space-3);
+  padding: 4px 10px;
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-overlay);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 비공개 방 표시. 인원 배지가 왼쪽 위라 반대편에 둔다 — 목록 카드의 자물쇠와 같은 자리다. */
+.thumb-lock {
+  position: absolute;
+  top: var(--gak-space-3);
+  right: var(--gak-space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-1);
+  padding: 4px 10px;
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-overlay);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-medium);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gak-space-2);
+  margin-bottom: var(--gak-space-3);
+}
+
+.chip-category {
+  padding: 4px 10px;
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+  font-size: var(--gak-fs-sm);
+  font-weight: var(--gak-fw-medium);
+}
+
+.chip-tag {
+  padding: 4px 10px;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-sm);
+  background: var(--gak-surface);
+  color: var(--gak-text-secondary);
+  font-size: var(--gak-fs-sm);
+}
+
+.room-title {
+  margin: 0;
+  font-size: var(--gak-fs-title);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  word-break: keep-all;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gak-space-4);
+  margin-top: var(--gak-space-4);
+  padding-top: var(--gak-space-4);
+  border-top: 1px solid var(--gak-surface-alt);
+  color: var(--gak-text-secondary);
+  font-size: var(--gak-fs-md);
+}
+
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+}
+
+.host-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 사진이 들어오면 동그란 테두리 밖으로 넘치지 않게 자른다 */
+  overflow: hidden;
+}
+
+/* 세로/가로 사진이 찌그러지지 않게 채운 뒤 넘치는 쪽을 자른다 */
+.host-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── 본문 ── */
+
+.body {
+  width: 100%;
+  max-width: var(--gak-content-width);
+  margin: 0 auto;
+  padding: var(--gak-space-6) var(--gak-content-padding);
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  flex: 1;
+}
+
+.section-title {
+  margin: 0 0 var(--gak-space-4);
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+/* 제목 바로 아래 소개(태그라인). 개설 시 입력한 줄바꿈을 살린다 */
+.tagline {
+  margin: var(--gak-space-2) 0 0;
+  color: var(--gak-text-secondary);
+  font-size: var(--gak-fs-md);
+  line-height: 1.6;
+  white-space: pre-line;
+  word-break: keep-all;
+}
+
+.tagline[data-empty='true'] {
+  color: var(--gak-text-muted);
+}
+
+.rule-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--gak-space-5);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-4);
+}
+
+.rule-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gak-space-3);
+  font-size: var(--gak-fs-md);
+  color: var(--gak-text);
+}
+
+.rule-check {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-primary-light);
+  color: var(--gak-primary);
+  font-size: var(--gak-fs-xs);
+  font-weight: var(--gak-fw-bold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--gak-space-2) var(--gak-space-5);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+}
+
+.time-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-4);
+  padding: var(--gak-space-4) 0;
+  border-bottom: 1px solid var(--gak-surface-alt);
+}
+
+.time-row:last-child {
+  border-bottom: none;
+}
+
+.time-label {
+  color: var(--gak-text-secondary);
+  font-size: var(--gak-fs-md);
+}
+
+.time-value {
+  color: var(--gak-text);
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 참여 멤버 ── */
+
+/* 참여자와 입장 버튼을 한 줄에 담는 카드. 예전에는 목록 카드와 하단 고정 바로 나뉘어 있었다. */
+.member-panel {
+  padding: var(--gak-space-4) var(--gak-space-5);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-4);
+  flex-wrap: wrap;
+}
+
+.member-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gak-space-2);
+  /* 사람이 많아지면 이쪽이 줄바꿈되고, 버튼은 오른쪽 끝을 지킨다 */
+  flex: 1;
+  min-width: 0;
+}
+
+/* 한 명을 가로 칩 하나로. 세로로 쌓으면 버튼과 높이가 안 맞아 줄이 두꺼워진다. */
+.member {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  padding: 4px var(--gak-space-3) 4px 4px;
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-bg);
+}
+
+.member-empty {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  color: var(--gak-text-muted);
+  font-size: var(--gak-fs-base);
+}
+
+.member-avatar {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  font-size: var(--gak-fs-sm);
+  border-radius: var(--gak-radius-full);
+  background: var(--gak-surface-alt);
+  border: 1px solid var(--gak-border);
+  color: var(--gak-text-secondary);
+  font-weight: var(--gak-fw-bold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 사진이 들어오면 동그란 테두리 밖으로 넘치지 않게 자른다 */
+  overflow: hidden;
+}
+
+/* 세로/가로 사진이 찌그러지지 않게 채운 뒤 넘치는 쪽을 자른다 */
+.member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.member-avatar[data-host='true'] {
+  border: 2px solid var(--gak-primary);
+  color: var(--gak-primary);
+}
+
+.member-name {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text);
+  word-break: keep-all;
+  white-space: nowrap;
+}
+
+.member-role {
+  font-size: var(--gak-fs-xs);
+  color: var(--gak-primary);
+  font-weight: var(--gak-fw-medium);
+}
+
+/* 규칙·멤버 공용 빈 상태 문구 */
+.empty-note {
+  margin: 0;
+  padding: var(--gak-space-5);
+  border: 1px dashed var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  color: var(--gak-text-muted);
+  font-size: var(--gak-fs-md);
+  text-align: center;
+}
+
+/* ── 입장 ── */
+
+.join-btn {
+  /* 참여자가 줄바꿈돼도 버튼은 줄어들지 않는다 */
+  flex-shrink: 0;
+  padding: 14px 40px;
+  border: none;
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  cursor: pointer;
+  transition: background var(--gak-transition-fast);
+}
+
+.join-btn:hover:not(:disabled) {
+  background: var(--gak-primary-hover);
+}
+
+.join-btn:disabled {
+  background: var(--gak-text-muted);
+  cursor: not-allowed;
+}
+
+.popup-blocked {
+  margin: var(--gak-space-2) 0 0;
+  color: var(--gak-status-danger);
+  font-size: var(--gak-fs-sm);
+  text-align: right;
+  word-break: keep-all;
+}
+
+/* ── 로딩·에러 상태 ── */
+
+.state {
+  max-width: var(--gak-content-width);
+  margin: 0 auto;
+  padding: 80px var(--gak-content-padding);
+  text-align: center;
+  color: var(--gak-text-secondary);
+  font-size: var(--gak-fs-md);
+}
+
+.back-btn {
+  margin-top: var(--gak-space-4);
+  padding: 10px 20px;
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-md);
+  background: var(--gak-surface);
+  color: var(--gak-text);
+  font-size: var(--gak-fs-base);
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .join-inner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}

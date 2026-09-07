@@ -1,0 +1,194 @@
+.complete-page {
+  min-height: 100vh;
+  display: flex;
+  padding: var(--gak-space-6) var(--gak-space-4);
+  background: var(--gak-bg);
+}
+
+/* margin:auto 로 세로 중앙에 둔다.
+   align-items:center 를 쓰면 내용이 화면보다 길 때 위쪽이 잘려 스크롤로도 못 본다. */
+.complete-inner {
+  width: 100%;
+  max-width: 880px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-5);
+}
+
+.headline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-3);
+  /* 아래 요소들과 충분히 떨어뜨려 상단이 답답하지 않게 한다. */
+  margin-bottom: var(--gak-space-5);
+  text-align: center;
+}
+
+.headline-title {
+  margin: 0;
+  font-size: var(--gak-fs-title);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.headline-sub {
+  margin: 0;
+  font-size: var(--gak-fs-md);
+  color: var(--gak-text-secondary);
+  word-break: keep-all;
+}
+
+/* ── 2단 배치: 왼쪽(학습 시간·타임랩스) / 오른쪽(지표 배너) ── */
+.content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--gak-space-4);
+}
+
+.left-col,
+.right-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-4);
+}
+
+/* ── 총 학습 시간 (세로로 짧게) ── */
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gak-space-2);
+  padding: var(--gak-space-5) var(--gak-space-5);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface-dark);
+  color: var(--gak-text-inverse);
+}
+
+.hero-label {
+  margin: 0;
+  font-size: var(--gak-fs-md);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hero-value {
+  margin: 0;
+  font-size: 48px;
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* 총 시간은 비교 기준일 뿐이라 순공보다 작고 연하게 — 주인공은 순공 시간이다 */
+.hero-total {
+  font-size: 28px;
+  font-weight: var(--gak-fw-medium);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* 타임랩스 카드는 TimelapsePlayer.module.css 가 갖는다 (왼쪽 남은 공간을 채움) */
+
+/* ── 지표 배너 (랭킹 포함, 오른쪽 열에 상·중·하로 쌓임) ── */
+.stat-banner {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gak-space-4);
+  padding: var(--gak-space-5);
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+}
+
+.stat-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-1);
+  min-width: 0;
+}
+
+.stat-label {
+  margin: 0;
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  word-break: keep-all;
+}
+
+.stat-value {
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 32px;
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--gak-primary);
+}
+
+.stat-note {
+  margin: 0;
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+  word-break: keep-all;
+}
+
+/* ── 액션 ── */
+.actions {
+  margin-top: var(--gak-space-2);
+  display: flex;
+  gap: var(--gak-space-3);
+}
+
+.report-btn,
+.home-btn {
+  /* 두 버튼이 같은 폭을 나눠 갖는다. 글자 수가 달라도 균형이 유지된다. */
+  flex: 1;
+  min-width: 0;
+  padding: var(--gak-space-4) var(--gak-space-5);
+  border-radius: var(--gak-radius-md);
+  font-family: inherit;
+  font-size: var(--gak-fs-md);
+  font-weight: var(--gak-fw-bold);
+  word-break: keep-all;
+  cursor: pointer;
+}
+
+.report-btn {
+  border: none;
+  background: var(--gak-primary);
+  color: var(--gak-text-inverse);
+}
+
+.report-btn:hover {
+  background: var(--gak-primary-hover);
+}
+
+.home-btn {
+  border: 1px solid var(--gak-border);
+  background: var(--gak-surface);
+  color: var(--gak-text-secondary);
+}
+
+.home-btn:hover {
+  border-color: var(--gak-primary);
+  color: var(--gak-primary);
+}
+
+@media (max-width: 760px) {
+  /* 좁으면 두 열이 눌리므로 한 줄로 쌓는다. */
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  /* 폭이 좁으면 두 버튼 글자가 눌려서 읽기 어려우므로 다시 세로로 쌓는다. */
+  .actions {
+    flex-direction: column;
+  }
+}

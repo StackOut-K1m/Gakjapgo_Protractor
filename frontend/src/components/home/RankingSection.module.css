@@ -1,0 +1,170 @@
+.ranking-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gak-space-3);
+}
+
+.ranking-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--gak-space-3);
+}
+
+.ranking-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-2);
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+}
+
+.period-select {
+  padding: var(--gak-space-1) var(--gak-space-2);
+  border: none;
+  border-radius: var(--gak-radius-sm);
+  background: none;
+  font-family: inherit;
+  font-size: var(--gak-fs-lg);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-primary);
+  cursor: pointer;
+}
+
+.period-select:focus {
+  outline: 2px solid var(--gak-primary);
+  outline-offset: 2px;
+}
+
+.ranking-updated {
+  font-size: var(--gak-fs-sm);
+  color: var(--gak-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ranking-body {
+  border: 1px solid var(--gak-border);
+  border-radius: var(--gak-radius-lg);
+  background: var(--gak-surface);
+  overflow: hidden;
+}
+
+.ranking-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gak-space-4);
+  /* 10명이 세로로 늘어서면 화면 하나를 통째로 쓴다. 아래 2열 배치와 함께 높이를 줄인다 */
+  padding: var(--gak-space-3) var(--gak-space-4);
+  min-width: 0;
+}
+
+/*
+ * 내 순위. 목록과 구분되게 위에 따로 두고 아래에 선을 긋는다.
+ *
+ * 이 화면에서 사람들이 가장 먼저 찾는 값이라 맨 위에 둔다. 10위 밖이면 목록에서 자기 이름을
+ * 눈으로 찾을 수가 없다.
+ */
+.ranking-row[data-mine] {
+  border-bottom: 1px solid var(--gak-border);
+  background: var(--gak-primary-light);
+}
+
+/*
+ * 상위 랭킹 2열 배치.
+ *
+ * 한 줄에 한 명씩 쌓으면 10명이 674px가 되어 홈에서 이 섹션만 화면을 채운다.
+ * 두 열로 접으면 절반 높이로 줄고, 순위 숫자가 각 칸 왼쪽에 있어 읽는 순서도 흐트러지지 않는다.
+ */
+.ranking-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* 칸 사이 선. 아래가 아니라 위에 그어야 마지막 줄에서 바깥 테두리와 겹치지 않는다 */
+.ranking-list .ranking-row {
+  border-top: 1px solid var(--gak-border);
+}
+.ranking-list .ranking-row:nth-child(-n + 2) {
+  border-top: none;
+}
+.ranking-list .ranking-row:nth-child(odd) {
+  border-right: 1px solid var(--gak-border);
+}
+
+/*
+ * 인원이 홀수면 마지막 칸의 오른쪽이 빈다. 그때도 선을 그으면 아무것도 없는 칸을 가리키는
+ * 세로선만 덩그러니 남아 잘린 표처럼 보인다.
+ */
+.ranking-list .ranking-row:last-child:nth-child(odd) {
+  border-right: none;
+}
+
+/* 좁은 화면에서는 한 열로 되돌린다. 두 열로 두면 닉네임이 잘린다 */
+@media (max-width: 640px) {
+  .ranking-list {
+    grid-template-columns: 1fr;
+  }
+  .ranking-list .ranking-row:nth-child(odd) {
+    border-right: none;
+  }
+  .ranking-list .ranking-row:nth-child(2) {
+    border-top: 1px solid var(--gak-border);
+  }
+}
+
+.rank-badge {
+  /* 자릿수가 달라도 닉네임 시작점이 흔들리지 않게 폭을 고정한다(1위 ~ 10위) */
+  flex: 0 0 auto;
+  min-width: 2.5rem;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-text-muted);
+}
+
+/* 1~3위만 색으로 짚어 준다. 순서를 한눈에 잡아 주되 배치는 그대로 둔다 */
+.rank-badge[data-top='1'] {
+  color: #d4a017;
+}
+.rank-badge[data-top='2'] {
+  color: #8b96a5;
+}
+.rank-badge[data-top='3'] {
+  color: #b06a3b;
+}
+
+.rank-user {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--gak-fs-base);
+  font-weight: var(--gak-fw-bold);
+  color: var(--gak-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-time {
+  font-size: var(--gak-fs-base);
+  font-variant-numeric: tabular-nums;
+  color: var(--gak-text-secondary);
+}
+
+/* 내 순위 자리의 안내 문구. 띠 안에 들어가므로 행 높이를 바꾸지 않는다 */
+.mine-empty {
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text-muted);
+}
+
+/* 이 기간에 아무 기록도 없을 때만 쓴다. 목록 자리를 대신하므로 가운데 정렬이 맞다 */
+.ranking-empty {
+  margin: 0;
+  padding: var(--gak-space-6) var(--gak-space-5);
+  text-align: center;
+  font-size: var(--gak-fs-base);
+  color: var(--gak-text-muted);
+  word-break: keep-all;
+}
